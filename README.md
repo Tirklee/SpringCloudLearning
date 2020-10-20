@@ -1630,6 +1630,236 @@ instance:
 
   **测试**
         7001和8001都配置完成
-        先启动7001再启动8001
-        先关闭8001
-          马上被删除了
+
+​        先启动7001再启动8001
+
+​        先关闭8001
+
+​          马上被删除了
+
+# 6.Zookeeper服务注册与发现
+
+## 6.1Eureka停止更新了你怎么办 
+
+https://github.com/Netflix/eureka/wiki
+
+## 6.2SpringCloud整合Zookeeper代替Eureka
+
+###     6.2.1注册中心Zookeeper
+
+> zookeeper是一个分布式协调工具，可以实现注册中心功能
+>
+> 关闭Linux服务器防火墙后启动zookeeper服务器
+>
+> zookeeper服务器取代Eureka服务器，zk作为服务注册中心
+
+###     6.2.2服务提供者
+
+> 新建cloud-provider-payment8004
+>
+> POM
+>
+> ```xml
+> <?xml version="1.0" encoding="UTF-8"?>
+> <project xmlns="http://maven.apache.org/POM/4.0.0"
+>          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+>          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+>     <parent>
+>         <artifactId>cloud2020</artifactId>
+>         <groupId>com.xiyue.cloud</groupId>
+>         <version>1.0-SNAPSHOT</version>
+>     </parent>
+>     <modelVersion>4.0.0</modelVersion>
+> 
+>     <artifactId>cloud-provider-payment8004</artifactId>
+>     <dependencies>
+>         <dependency>
+>             <groupId>com.xiyue.cloud</groupId>
+>             <artifactId>cloud-api-commons</artifactId>
+>             <version>${project.version}</version>
+>         </dependency>
+>         <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-web -->
+>         <dependency>
+>             <groupId>org.springframework.boot</groupId>
+>             <artifactId>spring-boot-starter-web</artifactId>
+>         </dependency>
+>         <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-web -->
+>         <dependency>
+>             <groupId>org.springframework.boot</groupId>
+>             <artifactId>spring-boot-starter-actuator</artifactId>
+>         </dependency>
+>         <!-- https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-zookeeper-discovery -->
+>         <dependency>
+>             <groupId>org.springframework.cloud</groupId>
+>             <artifactId>spring-cloud-starter-zookeeper-discovery</artifactId>
+>         </dependency>
+>         <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-devtools -->
+>         <dependency>
+>             <groupId>org.springframework.boot</groupId>
+>             <artifactId>spring-boot-devtools</artifactId>
+>             <scope>runtime</scope>
+>             <optional>true</optional>
+>         </dependency>
+>         <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
+>         <dependency>
+>             <groupId>org.projectlombok</groupId>
+>             <artifactId>lombok</artifactId>
+>             <optional>true</optional>
+>         </dependency>
+>         <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-test -->
+>         <dependency>
+>             <groupId>org.springframework.boot</groupId>
+>             <artifactId>spring-boot-starter-test</artifactId>
+>             <scope>test</scope>
+>         </dependency>
+>     </dependencies>
+> </project>
+> ```
+>
+> ​      YML
+>
+> ```yml
+> server:
+>   port: 8004
+> spring:
+>   application:
+>     name: cloud-provider-payment
+>   cloud:
+>     zookeeper:
+>       connect-string: 127.0.0.1:2181
+> ```
+>
+> ​      主启动类
+>
+> ```java
+> package com.xiyue.cloud;
+> 
+> import org.springframework.boot.SpringApplication;
+> import org.springframework.boot.autoconfigure.SpringBootApplication;
+> import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+> 
+> @SpringBootApplication
+> @EnableDiscoveryClient
+> public class PaymentMain8004 {
+>     public static void main(String[] args) {
+>         SpringApplication.run(PaymentMain8004.class,args);
+>     }
+> }
+> 
+> ```
+>
+> ​      Controller
+>
+> ```java
+> package com.xiyue.cloud.controller;
+> 
+> import lombok.extern.slf4j.Slf4j;
+> import org.springframework.beans.factory.annotation.Value;
+> import org.springframework.web.bind.annotation.GetMapping;
+> import org.springframework.web.bind.annotation.RestController;
+> 
+> import java.util.UUID;
+> 
+> @RestController
+> @Slf4j
+> public class PaymentController {
+> 
+>     @Value("${server.port}")
+>     private String serverPort;
+> 
+>     @GetMapping(value = "/payment/zk")
+>     public String paymentzk(){
+>         return "springcloud with zookeeper:"+serverPort+"\t"+ UUID.randomUUID().toString();
+>     }
+> 
+> }
+> ```
+>
+> ​      启动8004注册进zookeeper
+>
+> > ​        启动后问题
+> >
+> > ![image-20201021003706549](assets/image-20201021003706549.png)
+> >
+> > ​        why
+> >
+> > > ​          解决zookeeper版本jar包冲突问题
+> > >
+> > > ![image-20201021003748802](assets/image-20201021003748802.png)
+> > >
+> > > ​          排除zk冲突后的新POM
+> > >
+> > > ```xml
+> > > <!-- https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-zookeeper-discovery -->
+> > >         <dependency>
+> > >             <groupId>org.springframework.cloud</groupId>
+> > >             <artifactId>spring-cloud-starter-zookeeper-discovery</artifactId>
+> > >             <!--排除zk3.5.3-->
+> > >             <exclusions>
+> > >                 <exclusion>
+> > >                     <groupId>org.apache.zookeeper</groupId>
+> > >                     <artifactId>zookeeper</artifactId>
+> > >                 </exclusion>
+> > >             </exclusions>
+> > >         </dependency>
+> > >             <!--添加zk 3.4,9版本-->
+> > >         <!-- https://mvnrepository.com/artifact/org.apache.zookeeper/zookeeper -->
+> > >         <dependency>
+> > >             <groupId>org.apache.zookeeper</groupId>
+> > >             <artifactId>zookeeper</artifactId>
+> > >             <version>3.4.9</version>
+> > >         </dependency>
+> > > ```
+> > >
+> > > 
+>
+> ​      验证测试
+>
+> ![image-20201021003945480](assets/image-20201021003945480.png)
+>
+> ​        http://localhost:8004/payment/zk
+>
+> ​      验证测试2
+>
+> ![image-20201021004012819](assets/image-20201021004012819.png)
+>
+> ​        获得json串后用在线工具查看试试
+>
+> ​      思考
+>
+> ​        服务节点是临时节点还是持久节点：是临时节点
+
+### 6.2.3服务消费者
+
+​      新建cloud-consumerzk-order80
+
+​      POM
+
+​      YML
+
+​      主启动
+
+​      业务类
+
+​        配置Bean
+
+​        Controller
+
+​      启动8004注册进zookeeper
+
+​        启动后问题
+
+​        why
+
+​          解决zookeeper版本jar包冲突问题
+
+​          排出zk冲突后的新POM
+
+​      验证测试
+
+​        http://localhost:8004/payment/zk
+
+​      访问测试地址
+
+​        http://localhost/consumer/payment/zk
+
