@@ -1393,6 +1393,67 @@ service-url:
 
 ### 5.3.6支付服务提供者8001集群环境构建
 
+- 参考cloud-provider-payment8001
+- 新建cloud-provider-payment8002
+- 改POM
+
+- 写YML
+
+  ![image-20201020211532283](assets/image-20201020211532283.png)
+
+>   7001
+>
+> ```yml
+> server:
+>   port: 7001
+> 
+> eureka:
+>   instance:
+>     hostname: eureka7001.com    #eureka服务端的实例名字
+>   client:
+>     register-with-eureka: false    #表识不向注册中心注册自己
+>     fetch-registry: false   #表示自己就是注册中心，职责是维护服务实例，并不需要去检索服务
+>     service-url:
+>       defaultZone: http://eureka7002.com:7002/eureka/    #设置与eureka server交互的地址查询服务和注册服务都需要依赖这个地址
+> ```
+>
+>   7002
+>
+> ```yml
+> server:
+>   port: 7002
+> 
+> eureka:
+>   instance:
+>     hostname: eureka7002.com #eureka服务端的实例名字
+>   client:
+>     register-with-eureka: false    #表识不向注册中心注册自己
+>     fetch-registry: false   #表示自己就是注册中心，职责是维护服务实例，并不需要去检索服务
+>     service-url:
+>       defaultZone: http://eureka7001.com:7001/eureka/     #设置与eureka server交互的地址查询服务和注册服务都需要依赖这个地址
+> ```
+
+- 主启动类
+
+>   找到C:\Windows\System32\drivers\etc路径下的hosts文件
+>
+> ![image-20201020211733193](assets/image-20201020211733193.png)
+>
+>   修改映射配置添加进hosts文件
+>
+> > 127.0.0.1  eureka7001.com
+> >  127.0.0.1  eureka7002.com
+
+- 修改8001/8002的Controller
+
+>   8001
+>
+> ![image-20201020211809470](assets/image-20201020211809470.png)
+>
+>   8002
+>
+> ![image-20201020212015476](assets/image-20201020212015476.png)
+
 ### 5.3.7负载均衡
 
 ### 5.3.8测试02
