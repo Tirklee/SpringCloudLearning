@@ -737,7 +737,7 @@ https://start.spring.io/actuator/info
 - Adding plugin to your pom.xml
 
   ```xml
-  下一段配置黏贴到父工程当中的pom里
+  <!-- 一段配置黏贴到父工程当中的pom里 -->
   <build>
     <plugins>
       <plugin>
@@ -767,6 +767,175 @@ https://start.spring.io/actuator/info
 - 重启IDEA
 
 #### 4.3.1.3.cloud-consumer-order80微服务消费者订单Module模块
+
+- 新建cloud-consumer-order80
+
+  注意项目名称与上面图片可能不一致需要保持一致哦
+
+  ![image-20201020171041616](assets/image-20201020171041616.png)
+
+- 改POM
+
+  ```xml
+  <?xml version="1.0" encoding="UTF-8"?>
+  <project xmlns="http://maven.apache.org/POM/4.0.0"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+      <parent>
+          <artifactId>cloud2020</artifactId>
+          <groupId>com.xiyue.cloud</groupId>
+          <version>1.0-SNAPSHOT</version>
+      </parent>
+      <modelVersion>4.0.0</modelVersion>
+  
+      <artifactId>cloud-consumer-order80</artifactId>
+      <dependencies>
+          <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-web -->
+          <dependency>
+              <groupId>org.springframework.boot</groupId>
+              <artifactId>spring-boot-starter-web</artifactId>
+          </dependency>
+  
+          <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-web  -->
+          <dependency>
+              <groupId>org.springframework.boot</groupId>
+              <artifactId>spring-boot-starter-actuator</artifactId>
+          </dependency>
+  
+          <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-devtools -->
+          <dependency>
+              <groupId>org.springframework.boot</groupId>
+              <artifactId>spring-boot-devtools</artifactId>
+              <scope>runtime</scope>
+              <optional>true</optional>
+          </dependency>
+  
+          <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
+          <dependency>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+              <optional>true</optional>
+          </dependency>
+  
+          <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-test -->
+          <dependency>
+              <groupId>org.springframework.boot</groupId>
+              <artifactId>spring-boot-starter-test</artifactId>
+              <scope>test</scope>
+          </dependency>
+      </dependencies>
+  </project>
+  ```
+
+- 写YML
+
+  ```yml
+  server:
+    port: 80
+  ```
+
+- 主启动
+
+  ```java
+  package com.xiyue.cloud;
+  
+  import org.springframework.boot.SpringApplication;
+  import org.springframework.boot.autoconfigure.SpringBootApplication;
+  
+  @SpringBootApplication
+  public class OrderMain80 {
+      public static void main(String[] args) {
+          SpringApplication.run(OrderMain80.class,args);
+      }
+  }
+  ```
+
+- 业务类
+
+  创建entities(将cloud-provider-payment8001工程下的entities包下的两个实体类复制过来)
+
+  ![image-20201020172704234](README.assets/image-20201020172704234.png)
+
+  首说RestTemplate
+
+  > 是什么
+  >
+  > ![image-20201020172930219](assets/image-20201020172930219.png)
+  >
+  > 官网及使用
+  >
+  > **官网地址：**
+  > https://docs.spring.io/spring-framework/docs/5.2.2.RELEASE/javadoc-api/org/springframework/web/client/RestTemplate.html
+  >
+  > ![image-20201020173034647](assets/image-20201020173034647.png)
+
+  config配置类（ApplicationContextConfig）
+
+  ```java
+  package com.xiyue.cloud.config;
+  
+  import org.springframework.context.annotation.Bean;
+  import org.springframework.context.annotation.Configuration;
+  import org.springframework.web.client.RestTemplate;
+  
+  @Configuration
+  public class ApplicationContextConfig {
+  
+      @Bean
+      public RestTemplate getRestTemplate(){
+          return new RestTemplate();
+      }
+  
+  }
+  ```
+
+  创建controller
+
+  ```java
+  package com.xiyue.cloud.controller;
+  
+  import com.xiyue.cloud.entities.CommonResult;
+  import com.xiyue.cloud.entities.Payment;
+  import lombok.extern.slf4j.Slf4j;
+  import org.springframework.web.bind.annotation.GetMapping;
+  import org.springframework.web.bind.annotation.PathVariable;
+  import org.springframework.web.bind.annotation.RestController;
+  import org.springframework.web.client.RestTemplate;
+  
+  import javax.annotation.Resource;
+  
+  @RestController
+  @Slf4j
+  public class OrderController {
+  
+      public static final String PAYMENT_URL = "http://localhost:8001";
+  
+      @Resource
+      private RestTemplate restTemplate;
+  
+      @GetMapping("/consumer/payment/create")
+      public CommonResult<Payment>   create(Payment payment){
+          return restTemplate.postForObject(PAYMENT_URL+"/payment/create",payment,CommonResult.class);  //写操作
+      }
+  
+      @GetMapping("/consumer/payment/get/{id}")
+      public CommonResult<Payment> getPayment(@PathVariable("id") Long id){
+          return restTemplate.getForObject(PAYMENT_URL+"/payment/get/"+id,CommonResult.class);
+      }
+  }
+  ```
+
+  
+
+- 测试
+
+  > 先启动cloud-provider-payment8001
+  > 再启动cloud-consumer-order80
+  > http://localhost/consumer/payment/get/1
+  >
+  > 不要忘记@RequestBody注解
+  >
+  > ![image-20201020173741955](assets/image-20201020173741955.png)
 
 #### 4.3.1.4.工程重构
 
