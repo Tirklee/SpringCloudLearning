@@ -1,5 +1,7 @@
 [TOC]
 
+郑重说明本资料来源于https://www.bilibili.com/video/BV18E411x7eT
+
 # 1.微服务架构零基础理论入门（小白必看）
 
 ## 1.1零基础小白，2020.1春节期间预习过第一季的，理解微服务概念的可以不看
@@ -1018,3 +1020,289 @@ https://start.spring.io/actuator/info
 ### 4.3.2目前工程样图
 
 ![image-20201020181733315](assets/image-20201020181733315.png)
+
+# 5.Eureka服务注册与发现
+
+## 5.1Eureka基础知识
+
+### 5.1.1什么是服务治理
+
+![image-20201020183348148](assets/image-20201020183348148.png)
+
+### 5.1.2什么是服务注册
+
+![image-20201020183437044](assets/image-20201020183437044.png)
+
+![image-20201020183517501](assets/image-20201020183517501.png)
+
+### 5.1.3Eureka两组件
+
+![image-20201020183709671](assets/image-20201020183709671.png)
+
+## 5.2单机Eureka构建步骤
+
+### 5.2.1IDEA生成eurekaServer端服务注册中心类似物业公司
+
+> - 建Module
+>
+>   cloud-eureka-server7001
+>
+> - 改POM
+>
+>   ```xml
+>   <?xml version="1.0" encoding="UTF-8"?>
+>   <project xmlns="http://maven.apache.org/POM/4.0.0"
+>            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+>            xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+>       <parent>
+>           <artifactId>cloud2020</artifactId>
+>           <groupId>com.xiyue.cloud</groupId>
+>           <version>1.0-SNAPSHOT</version>
+>       </parent>
+>       <modelVersion>4.0.0</modelVersion>
+>   
+>       <artifactId>cloud-eureka-server7001</artifactId>
+>       <dependencies>
+>           <!-- https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-eureka-server -->
+>           <dependency>
+>               <groupId>org.springframework.cloud</groupId>
+>               <artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
+>           </dependency>
+>   
+>           <dependency>
+>               <groupId>com.xiyue.cloud</groupId>
+>               <artifactId>cloud-api-commons</artifactId>
+>               <version>${project.version}</version>
+>           </dependency>
+>   
+>           <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-web -->
+>           <dependency>
+>               <groupId>org.springframework.boot</groupId>
+>               <artifactId>spring-boot-starter-web</artifactId>
+>           </dependency>
+>   
+>           <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-web  -->
+>           <dependency>
+>               <groupId>org.springframework.boot</groupId>
+>               <artifactId>spring-boot-starter-actuator</artifactId>
+>           </dependency>
+>   
+>           <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-devtools -->
+>           <dependency>
+>               <groupId>org.springframework.boot</groupId>
+>               <artifactId>spring-boot-devtools</artifactId>
+>               <scope>runtime</scope>
+>               <optional>true</optional>
+>           </dependency>
+>   
+>           <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
+>           <dependency>
+>               <groupId>org.projectlombok</groupId>
+>               <artifactId>lombok</artifactId>
+>           </dependency>
+>   
+>           <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-test -->
+>           <dependency>
+>               <groupId>org.springframework.boot</groupId>
+>               <artifactId>spring-boot-starter-test</artifactId>
+>               <scope>test</scope>
+>           </dependency>
+>           <dependency>
+>               <groupId>junit</groupId>
+>               <artifactId>junit</artifactId>
+>           </dependency>
+>       </dependencies>
+>   </project>
+>   ```
+>
+>   1.X和2.X的对比说明
+>
+>   ![image-20201020190251651](assets/image-20201020190251651.png)
+>
+> - 写YML
+>
+>   application.yml
+>
+>   ```yml
+>   server:
+>     port: 7001
+>   
+>   eureka:
+>     instance:
+>       hostname: localhost  #eureka服务端的实例名字
+>     client:
+>       register-with-eureka: false    #表识不向注册中心注册自己
+>       fetch-registry: false   #表示自己就是注册中心，职责是维护服务实例，并不需要去检索服务
+>      service-url:
+>       defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/    #设置与eureka server交互的地址查询服务和注册服务都需要依赖这个地址
+>   
+>   ```
+>
+> - 主启动
+>
+>   ```java
+>   package com.xiyue.cloud;
+>   
+>   import org.springframework.boot.SpringApplication;
+>   import org.springframework.boot.autoconfigure.SpringBootApplication;
+>   import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
+>   
+>   @EnableEurekaServer
+>   @SpringBootApplication
+>   public class EurekaMain7001 {
+>       public static void main(String[] args) {
+>           SpringApplication.run(EurekaMain7001.class,args);
+>       }
+>   }
+>   ```
+>
+>   @EnableEurekaServer
+>
+> - 测试
+>
+>   http://localhost:7001/
+>   结果页面
+>
+>   ![image-20201020191217881](assets/image-20201020191217881.png)
+
+### 5.2.2EurekaClient端cloud-provider-payment8001将注册进EurekaServer成为服务提供者provider，类似尚硅谷学校对外提供授课服务
+
+> - cloud-provider-payment8001
+>
+> - 改POM
+>
+> ```xml
+>  <!-- https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-eureka-server -->
+> <dependency>
+>     <groupId>org.springframework.cloud</groupId>
+>     <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+> </dependency>
+> ```
+>
+> 1.X和2.X的对比说明
+>
+> ![image-20201020191656685](assets/image-20201020191656685.png)
+>
+> - 写YML
+>
+> ```yml
+> eureka:
+>   client:
+>     register-with-eureka: true
+>     fetchRegistry: true
+>     service-url:
+>       defaultZone: http://localhost:7001/eureka
+> ```
+>
+> - 主启动
+>
+>   ```java
+>   package com.xiyue.cloud;
+>   
+>   import org.springframework.boot.SpringApplication;
+>   import org.springframework.boot.autoconfigure.SpringBootApplication;
+>   import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+>   
+>   @SpringBootApplication
+>   @EnableEurekaClient
+>   public class PaymentMain8001 {
+>   
+>       public static void main(String[] args) {
+>           SpringApplication.run(PaymentMain8001.class,args);
+>       }
+>   }
+>   
+>   ```
+>
+>   @EnableEurekaClient
+>
+> - 测试
+>
+>   > 先要启动EurekaServer
+>   > http://localhost:7001/
+>   >
+>   > ![image-20201020200113893](assets/image-20201020200113893.png)
+>   >
+>   > 微服务注册名配置说明
+>   >
+>   > ![image-20201020200207303](assets/image-20201020200207303.png)
+>
+> - 自我保护机制
+>
+>   ![image-20201020200255151](assets/image-20201020200255151.png)
+
+### 5.2.3EurekaClient端cloud-consumer-order80将注册进EurekaServer成为服务消费者consumer,类似来尚硅谷上课消费的各位同学
+
+> - cloud-consumer-order80
+>
+> - POM
+>
+> ```xml
+>  <!-- https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-eureka-server -->
+> <dependency>
+>     <groupId>org.springframework.cloud</groupId>
+>     <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+> </dependency>
+> ```
+>
+> - 写YML（application.yml）
+>
+> ```yml
+> server:
+>   port: 80
+> 
+> spring:
+>   application:
+>     name: cloud-order-service
+> 
+> eureka:
+>   client:
+>     register-with-eureka: true
+>     fetchRegistry: true
+>     service-url:
+>       defaultZone: http://localhost:7001/eureka
+> ```
+>
+> - 主启动
+>
+>   ```java
+>   package com.xiyue.cloud;
+>   
+>   import org.springframework.boot.SpringApplication;
+>   import org.springframework.boot.autoconfigure.SpringBootApplication;
+>   import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+>   
+>   @EnableEurekaClient
+>   @SpringBootApplication
+>   public class OrderMain80 {
+>       public static void main(String[] args) {
+>           SpringApplication.run(OrderMain80.class,args);
+>       }
+>   }
+>   ```
+>
+> @EnableEurekaClient
+>
+> - 测试
+>
+> > 先要启动EurekaServer，7001服务
+> > 再要启动服务提供者provider，8001服务
+> > eureka服务器
+> >
+> > ![image-20201020201007168](assets/image-20201020201007168.png)
+> >
+> > http://localhost/consumer/payment/get/1
+
+### 5.2.4bug
+
+![image-20201020201733451](assets/image-20201020201733451.png)
+
+
+
+## 5.3集群Eureka构建步骤
+
+## 5.4actuator微服务信息完善
+
+## 5.5服务发现Discovery
+
+## 5.6Eureka自我保护
