@@ -854,7 +854,7 @@ https://start.spring.io/actuator/info
 
   创建entities(将cloud-provider-payment8001工程下的entities包下的两个实体类复制过来)
 
-  ![image-20201020172704234](README.assets/image-20201020172704234.png)
+  ![image-20201020172704234](assets/image-20201020172704234.png)
 
   首说RestTemplate
 
