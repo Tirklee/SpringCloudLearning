@@ -1467,6 +1467,8 @@ service-url:
 
 - 使用@LoadBalanced注解赋予RestTemplate负载均衡的能力
 
+  ![image-20201020220120106](assets/image-20201020220120106.png)
+
 - ApplicationContextBean
 
 >   提前说一下Ribbon的负载均衡功能
@@ -1474,6 +1476,19 @@ service-url:
 
 
 ### 5.3.8测试02
+
+- 先要启动EurekaServer，7001/7002服务
+- 再要启动服务提供者provider，8001/8002服务
+- http://localhost/consumer/payment/get/1
+- 结果
+
+>   负载均衡效果达到
+>
+>   8001/8002端口交替出现
+
+- Ribbon和Eureka整合后Consumer可以直接调用服务而不用再关心地址和端口号，且该服务还有负载功能了
+
+  ![image-20201020214141557](assets/image-20201020214141557.png)
 
 ## 5.4actuator微服务信息完善
 
