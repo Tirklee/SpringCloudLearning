@@ -722,6 +722,50 @@ https://start.spring.io/actuator/info
 
 #### <u>4.3.1.2.热部署Devtools</u>
 
+- Adding devtools to your project
+
+  ```xml
+  <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-devtools -->
+  <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-devtools</artifactId>
+     <scope>runtime</scope>
+      <optional>true</optional>
+  </dependency>
+  ```
+
+- Adding plugin to your pom.xml
+
+  ```xml
+  下一段配置黏贴到父工程当中的pom里
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <configuration>
+          <fork>true</fork>
+          <addResources>true</addResources>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+  ```
+
+  
+
+- Enabling automatic build 
+
+![image-20201020164014387](assets/image-20201020164014387.png)
+
+- Update the value of
+
+  ![image-20201020164105766](assets/image-20201020164105766.png)
+
+  ![image-20201020164259826](assets/image-20201020164259826.png)
+
+- 重启IDEA
+
 #### 4.3.1.3.cloud-consumer-order80微服务消费者订单Module模块
 
 #### 4.3.1.4.工程重构
