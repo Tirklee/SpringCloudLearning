@@ -1576,3 +1576,60 @@ service-url:
   http://localhost:8001/payment/discovery
 
 ## 5.6Eureka自我保护
+
+-   故障现象
+
+  ![image-20201020224330537](assets/image-20201020224330537.png)
+
+-   导致原因
+
+  ![image-20201020224450250](assets/image-20201020224450250.png)
+
+  ![image-20201020224517772](assets/image-20201020224517772.png)
+
+![image-20201020224606843](assets/image-20201020224606843.png)
+
+![image-20201020224656439](assets/image-20201020224656439.png)
+
+1. 一句话：某时刻某一个微服务不可用了，Eureka不会立刻清理，依旧会对该微服务的信息进行保存
+2. 属于CAP里面的AP分支
+
+-   怎么禁止自我保护（一般生产环境中不会禁止自我保护）
+
+1.  注册中心eureakeServer端7001
+
+   出厂默认，自我保护机制是开启的**eureka.server.enable-self-preservation = true**
+
+   使用**eureka.server.enable-self-preservation = false**可以禁用自我保护模式
+
+   ```yml
+   server:
+     enable-self-preservation: false
+     eviction-interval-timer-in-ms: 2000
+   ```
+
+   关闭效果
+
+   在eurekaServer端7001处设置关闭自我保护机制
+
+2. 生产者客户端eureakeClient端8001
+
+​      **默认:**
+
+​        eureka.instance.lease-renewal-interval-in-seconds=30 单位为秒（默认是30秒）
+​        eureka.instance.lease-expiration-duration-in-seconds=90单位为秒（默认是90秒）
+​      配置
+
+```yml
+instance:
+    lease-renewal-interval-in-seconds:  1
+    lease-expiration-duration-in-seconds:  2
+```
+
+​    ![image-20201020225933407](assets/image-20201020225933407.png)
+
+  **测试**
+        7001和8001都配置完成
+        先启动7001再启动8001
+        先关闭8001
+          马上被删除了
