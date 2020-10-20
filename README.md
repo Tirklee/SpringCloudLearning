@@ -1,3 +1,5 @@
+[TOC]
+
 # 1.微服务架构零基础理论入门（小白必看）
 
 ## 1.1零基础小白，2020.1春节期间预习过第一季的，理解微服务概念的可以不看
@@ -939,6 +941,80 @@ https://start.spring.io/actuator/info
 
 #### 4.3.1.4.工程重构
 
+> 观察问题
+>
+> ![image-20201020175809238](assets/image-20201020175809238.png)
+>
+>   系统中有重复部分，重构
+> 新建 cloud-api-commons
+>
+> ![image-20201020180317364](assets/image-20201020180317364.png)
+>
+> POM
+>
+> ```xml
+> <?xml version="1.0" encoding="UTF-8"?>
+> <project xmlns="http://maven.apache.org/POM/4.0.0"
+>          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+>          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+>     <parent>
+>         <artifactId>cloud2020</artifactId>
+>         <groupId>com.xiyue.cloud</groupId>
+>         <version>1.0-SNAPSHOT</version>
+>     </parent>
+>     <modelVersion>4.0.0</modelVersion>
+> 
+>     <artifactId>cloud-api-commons</artifactId>
+>     <dependencies>
+>         <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-devtools -->
+>         <dependency>
+>             <groupId>org.springframework.boot</groupId>
+>             <artifactId>spring-boot-devtools</artifactId>
+>             <scope>runtime</scope>
+>             <optional>true</optional>
+>         </dependency>
+> 
+>         <dependency>
+>             <groupId>org.projectlombok</groupId>
+>             <artifactId>lombok</artifactId>
+>             <optional>true</optional>
+>         </dependency>
+> 
+>         <!-- https://mvnrepository.com/artifact/cn.hutool/hutool-all -->
+>         <dependency>
+>             <groupId>cn.hutool</groupId>
+>             <artifactId>hutool-all</artifactId>
+>             <version>5.1.0</version>
+>         </dependency>
+>     </dependencies>
+> </project>
+> ```
+>
+> entities
+>
+> -  Payment实体
+> - CommonResult通用封装类
+>
+> maven命令clean install
+>
+> 订单80和支付8001分别改造
+>
+> > 删除各自的原先有过的entities文件夹
+> > 各自黏贴POM内容
+> >
+> > ```xml
+> > <dependency>
+> >     <groupId>com.atguigu.springcloud</groupId>
+> >     <artifactId>cloud-api-commons</artifactId>
+> >     <version>${project.version}</version>
+> > </dependency>
+> > ```
+> >
+> > > 80
+> > > 8001
+
+
+
 ### 4.3.2目前工程样图
 
-![image-20201020105211895](assets/image-20201020105211895.png)
+![image-20201020181733315](assets/image-20201020181733315.png)
