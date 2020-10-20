@@ -1565,6 +1565,8 @@ service-url:
 
   @EnableDiscoveryClient
 
+![image-20201020223831468](assets/image-20201020223831468.png)
+
 - 自测
 
   先要启动EurekaServer，7001/7002服务
