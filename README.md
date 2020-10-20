@@ -1301,6 +1301,99 @@ https://start.spring.io/actuator/info
 
 ## 5.3集群Eureka构建步骤
 
+### 5.3.1Eureka集群原理说明
+
+![image-20201020202405812](assets/image-20201020202405812.png)
+
+### 5.3.2EurekaServer集群环境构建步骤
+
+> - 参考cloud-eureka-server7001
+>
+> - 新建cloud-eureka-server7002
+>
+> - 改POM
+>
+> - 修改映射配置
+>
+>   找到C:\Windows\System32\driver\etc路径下的hosts文件
+>
+>   ![image-20201020203628863](assets/image-20201020203628863.png)
+>
+>   修改映射配置添加进hosts文件
+>
+>   > 127.0.0.1 eureka7001.com
+>   >
+>   > 127.0.0.1 eureka7002.com
+>
+> - 写YML（以前单机）
+>
+>   ![image-20201020204230306](assets/image-20201020204230306.png)
+>
+>   > 7001
+>   >
+>   > ```yml
+>   > server:
+>   >   port: 7001
+>   > 
+>   > eureka:
+>   >   instance:
+>   >     hostname: eureka7001.com    #eureka服务端的实例名字
+>   >   client:
+>   >     register-with-eureka: false    #表识不向注册中心注册自己
+>   >     fetch-registry: false   #表示自己就是注册中心，职责是维护服务实例，并不需要去检索服务
+>   >     service-url:
+>   >       defaultZone: http://eureka7002.com:7002/eureka/    #设置与eureka server交互的地址查询服务和注册服务都需要依赖这个地址
+>   >  
+>   > ```
+>   >
+>   > 7002
+>   >
+>   > ```yml
+>   > server:
+>   >   port: 7002
+>   > 
+>   > eureka:
+>   >   instance:
+>   >     hostname: eureka7002.com #eureka服务端的实例名字
+>   >   client:
+>   >     register-with-eureka: false    #表识不向注册中心注册自己
+>   >     fetch-registry: false   #表示自己就是注册中心，职责是维护服务实例，并不需要去检索服务
+>   >     service-url:
+>   >       defaultZone: http://eureka7001.com:7001/eureka/     #设置与eureka server交互的地址查询服务和注册服务都需要依赖这个地址
+>   >  
+>   > ```
+>   >
+>   > 
+>
+> - 主启动(复制cloud-eureka-server7001的主启动类到7002即可)
+
+### 5.3.3将支付服务8001微服务发布到上面2台Eureka集群配置中
+
+```yml
+service-url:
+  defaultZone: http://eureka7001.com:7001/eureka,http://eureka7002.com:7002/eureka  #集群版
+```
+
+### 5.3.4将订单服务80微服务发布到上面2台Eureka集群配置
+
+```yml
+service-url:
+  defaultZone: http://eureka7001.com:7001/eureka,http://eureka7002.com:7002/eureka  #集群版
+```
+
+### 5.3.5测试01
+
+> 先要启动EurekaServer，7001/7002服务
+> 再要启动服务提供者provider，8001服务
+> 再要启动消费者，80
+> http://localhost/consumer/payment/get/1
+
+### 5.3.6支付服务提供者8001集群环境构建
+
+### 5.3.7负载均衡
+
+### 5.3.8测试02
+
 ## 5.4actuator微服务信息完善
 
 ## 5.5服务发现Discovery
