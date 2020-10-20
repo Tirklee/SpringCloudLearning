@@ -1384,8 +1384,11 @@ service-url:
 ### 5.3.5测试01
 
 > 先要启动EurekaServer，7001/7002服务
+>
 > 再要启动服务提供者provider，8001服务
+>
 > 再要启动消费者，80
+>
 > http://localhost/consumer/payment/get/1
 
 ### 5.3.6支付服务提供者8001集群环境构建
