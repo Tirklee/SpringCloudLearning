@@ -1492,6 +1492,85 @@ service-url:
 
 ## 5.4actuator微服务信息完善
 
+- 主机名称：服务名称修改
+
+>   当前问题
+>   修改cloud-provider-payment8001
+>     YML
+>       修改部分
+>
+> ```yml
+> instance:
+>     instance-id: payment8001
+> ```
+>
+> ​      完整部分
+>   修改之后
+
+- 访问信息有ip信息提示
+
+>   当前问题
+>     没有ip提示
+>   修改cloud-provider-payment8001
+>     YML
+>       修改部分
+>
+> ```yml
+> prefer-ip-address: true
+> ```
+>
+> ​      完整内容
+>
+> ```yml
+> eureka:
+>   client:
+>     register-with-eureka: true
+>     fetchRegistry: true
+>     service-url:
+>       defaultZone: http://eureka7001.com:7001/eureka,http://eureka7002.com:7002/eureka  #集群版
+>   instance:
+>     instance-id: payment8001
+>     prefer-ip-address: true
+> ```
+>
+>   修改之后
+
 ## 5.5服务发现Discovery
+
+- 对于注册进eureka里面的微服务，可以通过服务发现来获得该服务的信息
+
+- 修改cloud-provider-payment8001的Controller
+
+  ```java
+  @Resource
+  private DiscoveryClient discoveryClient;
+   
+  @GetMapping(value = "/payment/discovery")
+  public Object discovery(){
+      List<String> services = discoveryClient.getServices();
+      for (String element : services) {
+          log.info("***** element:"+element);
+      }
+      List<ServiceInstance> instances = discoveryClient.getInstances("CLOUD-PAYMENT-SERVICE");
+      for (ServiceInstance instance : instances) {
+          log.info(instance.getServiceId()+"\t"+instance.getHost()+"\t"+instance.getPort()+"\t"+instance.getUri());
+      }
+      return this.discoveryClient;
+  }
+  ```
+
+  
+
+- 8001主启动类
+
+  @EnableDiscoveryClient
+
+- 自测
+
+  先要启动EurekaServer，7001/7002服务
+
+  再启动8001主启动类，需要稍等一会
+
+  http://localhost:8001/payment/discovery
 
 ## 5.6Eureka自我保护
