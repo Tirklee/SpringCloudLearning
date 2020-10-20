@@ -1456,6 +1456,23 @@ service-url:
 
 ### 5.3.7负载均衡
 
+- bug
+
+>   订单服务访问地址不能写死
+>
+> ```java
+> //改为这个：
+> public static final String PAYMENT_URL = "http://CLOUD-PAYMENT-SERVICE";
+> ```
+
+- 使用@LoadBalanced注解赋予RestTemplate负载均衡的能力
+
+- ApplicationContextBean
+
+>   提前说一下Ribbon的负载均衡功能
+
+
+
 ### 5.3.8测试02
 
 ## 5.4actuator微服务信息完善
