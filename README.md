@@ -2062,3 +2062,59 @@ https://github.com/Netflix/eureka/wiki
 >
 > ​        http://localhost/consumer/payment/zk
 
+# 7.Consul服务注册与发现
+
+  Consul简介
+    是什么
+      https://www.consul.io/intro/index.html
+    能干嘛
+      服务发现
+        提供HTTP和DNS两种发现方式
+      健康监测
+        支持多种协议，HTTP、TCP、Docker、Shell脚本定制化
+      KV存储
+        key , Value的存储方式
+      多数据中心
+        Consul支持多数据中心
+      可视化Web界面
+    去哪下
+      https://www.consul.io/downloads.html
+    怎么玩
+      https://www.springcloud.cc/spring-cloud-consul.html
+  安装并运行Consul
+    官网安装说明
+      https://learn.hashicorp.com/consul/getting-started/install.html
+    下载完成后只有一个consul.exe文件，硬盘路径下双击运行，查看版本信息
+    使用开发模式启动
+      consul agent -dev
+      通过以下地址可以访问Consul的首页：http;//localhost:8500
+      结果页面
+  服务提供者
+    新建Module支付服务provider8006
+      cloud-providerconsul-payment8006
+    POM
+    YML
+    主启动类
+    业务类Controller
+    验证测试
+      http://localhost:8006/payment/consul
+  服务消费者
+    新建Module消费服务order8006
+      cloud-consumerconsul-order80
+    POM
+    YML
+    主启动类
+    配置Bean
+    Controller
+    验证测试
+    访问测试地址
+      http://localhost/consumer/payment/consul
+  三个注册中心异同点
+    CAP
+      C:Consistency(强一致性)
+      A:Availability(可用性)
+      P:Partition tolerance(分区容错)
+      CAP理论关注粒度是数据，而不是整体系统设计的策略
+    经典CAP图
+      AP(Eureka)
+      CP(Zookeeper/Consul)
