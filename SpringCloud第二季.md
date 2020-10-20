@@ -18,12 +18,12 @@
 
 ## 2.2Springboot版本选择
 
-git源码地址：
+**git源码地址：**
   https://github.com/spring-projects/spring-boot/releases/
-SpringBoot2.0新特性：
+**SpringBoot2.0新特性：**
   https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-2.0-Release-Notes
 
-通过上面官网发现，Boot官方强烈建议你升级到2.X以上版本
+**通过上面官网发现，Boot官方强烈建议你升级到2.X以上版本**
 
 ![image-20201020085107723](assets/image-20201020085107723.png)
 
