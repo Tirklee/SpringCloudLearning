@@ -1831,35 +1831,234 @@ https://github.com/Netflix/eureka/wiki
 
 ### 6.2.3服务消费者
 
-​      新建cloud-consumerzk-order80
-
-​      POM
-
-​      YML
-
-​      主启动
-
-​      业务类
-
-​        配置Bean
-
-​        Controller
-
-​      启动8004注册进zookeeper
-
-​        启动后问题
-
-​        why
-
-​          解决zookeeper版本jar包冲突问题
-
-​          排出zk冲突后的新POM
-
-​      验证测试
-
-​        http://localhost:8004/payment/zk
-
-​      访问测试地址
-
-​        http://localhost/consumer/payment/zk
+> 新建cloud-consumerzk-order80
+>
+> POM
+>
+> ```xml
+> <?xml version="1.0" encoding="UTF-8"?>
+> <project xmlns="http://maven.apache.org/POM/4.0.0"
+>          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+>          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+>     <parent>
+>         <artifactId>cloud2020</artifactId>
+>         <groupId>com.xiyue.cloud</groupId>
+>         <version>1.0-SNAPSHOT</version>
+>     </parent>
+>     <modelVersion>4.0.0</modelVersion>
+> 
+>     <artifactId>cloud-consumerzk-order80</artifactId>
+> 
+>     <dependencies>
+> 
+>         <dependency>
+>             <groupId>com.xiyue.cloud</groupId>
+>             <artifactId>cloud-api-commons</artifactId>
+>             <version>${project.version}</version>
+>         </dependency>
+> 
+> 
+>         <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-web -->
+>         <dependency>
+>             <groupId>org.springframework.boot</groupId>
+>             <artifactId>spring-boot-starter-web</artifactId>
+>         </dependency>
+> 
+>         <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-web -->
+>         <dependency>
+>             <groupId>org.springframework.boot</groupId>
+>             <artifactId>spring-boot-starter-actuator</artifactId>
+>         </dependency>
+> 
+>         <!-- https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-zookeeper-discovery -->
+>         <dependency>
+>             <groupId>org.springframework.cloud</groupId>
+>             <artifactId>spring-cloud-starter-zookeeper-discovery</artifactId>
+>         </dependency>
+> 
+>         <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-devtools -->
+>         <dependency>
+>             <groupId>org.springframework.boot</groupId>
+>             <artifactId>spring-boot-devtools</artifactId>
+>             <scope>runtime</scope>
+>             <optional>true</optional>
+>         </dependency>
+> 
+>         <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
+>         <dependency>
+>             <groupId>org.projectlombok</groupId>
+>             <artifactId>lombok</artifactId>
+>             <optional>true</optional>
+>         </dependency>
+> 
+>         <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-test -->
+>         <dependency>
+>             <groupId>org.springframework.boot</groupId>
+>             <artifactId>spring-boot-starter-test</artifactId>
+>             <scope>test</scope>
+>         </dependency>
+>     </dependencies>
+> </project>
+> ```
+>
+> ​      YML（application.yml）
+>
+> ```yml
+> server:
+>   port: 80
+> 
+> spring:
+>   application:
+>     name: cloud-consumer-order
+>   cloud:
+>     zookeeper:
+>       connect-string: 127.0.0.1:2181
+> ```
+>
+> ​      主启动
+>
+> ```java
+> package com.xiyue.cloud;
+> 
+> import org.springframework.boot.SpringApplication;
+> import org.springframework.boot.autoconfigure.SpringBootApplication;
+> import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+> 
+> @SpringBootApplication
+> @EnableDiscoveryClient
+> public class OrderZKMain80 {
+>     public static void main(String[] args) {
+>         SpringApplication.run(OrderZKMain80.class,args);
+>     }
+> }
+> ```
+>
+> ​      业务类
+>
+> ```java
+> package com.xiyue.cloud.controller;
+> 
+> import lombok.extern.slf4j.Slf4j;
+> import org.springframework.beans.factory.annotation.Value;
+> import org.springframework.web.bind.annotation.GetMapping;
+> import org.springframework.web.bind.annotation.RestController;
+> 
+> import java.util.UUID;
+> 
+> @RestController
+> @Slf4j
+> public class PaymentController {
+> 
+>     @Value("${server.port}")
+>     private String serverPort;
+> 
+>     @GetMapping(value = "/payment/zk")
+>     public String paymentzk(){
+>         return "springcloud with zookeeper:"+serverPort+"\t"+ UUID.randomUUID().toString();
+>     }
+> 
+> }
+> ```
+>
+> >  配置Bean
+> >
+> > ```java
+> > package com.xiyue.cloud.config;
+> > 
+> > import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+> > import org.springframework.context.annotation.Bean;
+> > import org.springframework.context.annotation.Configuration;
+> > import org.springframework.web.client.RestTemplate;
+> > 
+> > @Configuration
+> > public class ApplicationConfig {
+> > 
+> >     @LoadBalanced
+> >     @Bean
+> >     public RestTemplate getRestTemplate(){
+> >         return new RestTemplate();
+> >     }
+> > }
+> > ```
+> >
+> > Controller
+> >
+> > ```java
+> > package com.xiyue.cloud.controller;
+> > 
+> > import lombok.extern.slf4j.Slf4j;
+> > import org.springframework.web.bind.annotation.GetMapping;
+> > import org.springframework.web.bind.annotation.RestController;
+> > import org.springframework.web.client.RestTemplate;
+> > 
+> > import javax.annotation.Resource;
+> > 
+> > @RestController
+> > @Slf4j
+> > public class OrderZKController {
+> > 
+> >     public static final String INVOME_URL = "http://cloud-provider-payment";
+> > 
+> >     @Resource
+> >     private RestTemplate restTemplate;
+> > 
+> >     @GetMapping("/consumer/payment/zk")
+> >     public String payment (){
+> >         String result = restTemplate.getForObject(INVOME_URL+"/payment/zk",String.class);
+> >         return result;
+> >     }
+> > 
+> > 
+> > }
+> > ```
+> >
+> > 
+>
+> ​      启动8004注册进zookeeper
+>
+> >  启动后问题
+> >
+> > ![image-20201021011321130](assets/image-20201021011321130.png)
+> >
+> >  why
+> >
+> > > 解决zookeeper版本jar包冲突问题
+> > >
+> > > ![image-20201021011345770](assets/image-20201021011345770.png)
+> > >
+> > >  排出zk冲突后的新POM
+> > >
+> > >
+> > > ```xml
+> > > <!-- https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-zookeeper-discovery -->
+> > >     <dependency>
+> > >         <groupId>org.springframework.cloud</groupId>
+> > >         <artifactId>spring-cloud-starter-zookeeper-discovery</artifactId>
+> > >         <!--排除zk3.5.3-->
+> > >         <exclusions>
+> > >             <exclusion>
+> > >                 <groupId>org.apache.zookeeper</groupId>
+> > >                 <artifactId>zookeeper</artifactId>
+> > >             </exclusion>
+> > >         </exclusions>
+> > >     </dependency>
+> > >         <!--添加zk 3.4,9版本-->
+> > >     <!-- https://mvnrepository.com/artifact/org.apache.zookeeper/zookeeper -->
+> > >     <dependency>
+> > >         <groupId>org.apache.zookeeper</groupId>
+> > >         <artifactId>zookeeper</artifactId>
+> > >         <version>3.4.9</version>
+> > >     </dependency>
+> > > ```
+> > >
+>
+> ​      验证测试
+>
+> ![image-20201021011502748](assets/image-20201021011502748.png)
+>
+> ​        http://localhost:8004/payment/zk
+>
+> ​      访问测试地址
+>
+> ​        http://localhost/consumer/payment/zk
 
