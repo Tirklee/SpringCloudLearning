@@ -2064,57 +2064,408 @@ https://github.com/Netflix/eureka/wiki
 
 # 7.Consul服务注册与发现
 
-  Consul简介
-    是什么
-      https://www.consul.io/intro/index.html
-    能干嘛
-      服务发现
-        提供HTTP和DNS两种发现方式
-      健康监测
-        支持多种协议，HTTP、TCP、Docker、Shell脚本定制化
-      KV存储
-        key , Value的存储方式
-      多数据中心
-        Consul支持多数据中心
-      可视化Web界面
-    去哪下
-      https://www.consul.io/downloads.html
-    怎么玩
-      https://www.springcloud.cc/spring-cloud-consul.html
-  安装并运行Consul
-    官网安装说明
-      https://learn.hashicorp.com/consul/getting-started/install.html
-    下载完成后只有一个consul.exe文件，硬盘路径下双击运行，查看版本信息
-    使用开发模式启动
-      consul agent -dev
-      通过以下地址可以访问Consul的首页：http;//localhost:8500
-      结果页面
-  服务提供者
-    新建Module支付服务provider8006
-      cloud-providerconsul-payment8006
-    POM
-    YML
-    主启动类
-    业务类Controller
-    验证测试
-      http://localhost:8006/payment/consul
-  服务消费者
-    新建Module消费服务order8006
-      cloud-consumerconsul-order80
-    POM
-    YML
-    主启动类
-    配置Bean
-    Controller
-    验证测试
-    访问测试地址
-      http://localhost/consumer/payment/consul
-  三个注册中心异同点
-    CAP
-      C:Consistency(强一致性)
-      A:Availability(可用性)
-      P:Partition tolerance(分区容错)
-      CAP理论关注粒度是数据，而不是整体系统设计的策略
-    经典CAP图
-      AP(Eureka)
-      CP(Zookeeper/Consul)
+## 7.1Consul简介
+
+### 7.1.1是什么
+
+![image-20201021100226165](assets/image-20201021100226165.png)
+
+https://www.consul.io/intro/index.html
+
+### 7.1.2能干嘛
+
+![image-20201021100626876](assets/image-20201021100626876.png)
+
+服务发现:提供HTTP和DNS两种方式
+
+健康监测：支持多种协议、HTTP、TCP、Docker、Shell脚本定制化
+
+KV存储：key、Value的储存方式
+
+多数据中心：Consul支持多数据中心
+
+可视化界面
+
+### 7.1.3去哪下
+
+https://www.consul.io/downloads.html
+
+### 7.1.4怎么玩
+
+https://www.consul.io/downloads.html
+
+## 7.2安装并运行Consul
+
+### 7.2.1官网安装说明
+
+https://learn.hashicorp.com/consul/getting-started/install.html
+
+![image-20201021101132245](assets/image-20201021101132245.png)
+
+下载完成后只有一个Consul.exe文件，硬盘路径下双击运行、查看版本信息。
+
+### 7.2.2使用开发模式启动
+
+- consul agent -dev
+
+- 通过以下地址可以访问Consul的首页：http://localhost:8500
+
+- 结果页面
+
+  ![image-20201021101331128](assets/image-20201021101331128.png)
+
+## 7.3服务提供者
+
+- 新建Module支付服务provider8006:cloud-providerconsul-payment8006
+- POM
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>cloud2020</artifactId>
+        <groupId>com.xiyue.cloud</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>cloud-providerconsul-payment8006</artifactId>
+
+    <dependencies>
+        <!-- https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-consul-discovery -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-consul-discovery</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.xiyue.cloud</groupId>
+            <artifactId>cloud-api-commons</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+
+        <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-web -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-web -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-devtools -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <scope>runtime</scope>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-test -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+</project>
+```
+
+- YML(application.yml)
+
+  ```yml
+  server:
+    port: 8006
+  
+  
+  spring:
+    application:
+      name: consul-provider-payment
+    cloud:
+      consul:
+        host: localhost
+        port: 8500
+        discovery:
+          service-name: ${spring.application.name}
+  ```
+
+- 主启动类
+
+  ```java
+  package xom.xiyue.cloud;
+  
+  import org.springframework.boot.SpringApplication;
+  import org.springframework.boot.autoconfigure.SpringBootApplication;
+  import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+  
+  @SpringBootApplication
+  @EnableDiscoveryClient
+  public class PaymentMain8006 {
+      public static void main(String[] args) {
+          SpringApplication.run(PaymentMain8006.class,args);
+      }
+  }
+  
+  ```
+
+- 业务类Controller
+
+  ```java
+  package xom.xiyue.cloud.controller;
+  
+  import lombok.extern.slf4j.Slf4j;
+  import org.springframework.beans.factory.annotation.Value;
+  import org.springframework.web.bind.annotation.GetMapping;
+  import org.springframework.web.bind.annotation.RestController;
+  
+  import java.util.UUID;
+  
+  @RestController
+  @Slf4j
+  public class PaymentController {
+  
+      @Value("${server.port}")
+      private String serverPort;
+  
+      @GetMapping(value = "/payment/consul")
+      public String paymentConsul(){
+          return "springcloud with consul: "+serverPort+"\t"+ UUID.randomUUID().toString();
+      }
+  }
+  ```
+
+- 验证测试
+
+  http://localhost:8006/payment/consul
+
+![image-20201021103701174](assets/image-20201021103701174.png)
+
+## 7.4服务消费者
+
+- 新建Module消费服务order8006: cloud-consumerconsul-order80
+
+- POM
+
+  ```xml
+  <?xml version="1.0" encoding="UTF-8"?>
+  <project xmlns="http://maven.apache.org/POM/4.0.0"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+      <parent>
+          <artifactId>cloud2020</artifactId>
+          <groupId>com.xiyue.cloud</groupId>
+          <version>1.0-SNAPSHOT</version>
+      </parent>
+      <modelVersion>4.0.0</modelVersion>
+  
+      <artifactId>cloud-consumerconsul-order80</artifactId>
+      <dependencies>
+          <!-- https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-consul-discovery -->
+          <dependency>
+              <groupId>org.springframework.cloud</groupId>
+              <artifactId>spring-cloud-starter-consul-discovery</artifactId>
+          </dependency>
+  
+          <dependency>
+              <groupId>com.xiyue.cloud</groupId>
+              <artifactId>cloud-api-commons</artifactId>
+              <version>${project.version}</version>
+          </dependency>
+  
+  
+          <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-web -->
+          <dependency>
+              <groupId>org.springframework.boot</groupId>
+              <artifactId>spring-boot-starter-web</artifactId>
+          </dependency>
+  
+          <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-web -->
+          <dependency>
+              <groupId>org.springframework.boot</groupId>
+              <artifactId>spring-boot-starter-actuator</artifactId>
+          </dependency>
+  
+          <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-devtools -->
+          <dependency>
+              <groupId>org.springframework.boot</groupId>
+              <artifactId>spring-boot-devtools</artifactId>
+              <scope>runtime</scope>
+              <optional>true</optional>
+          </dependency>
+  
+          <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
+          <dependency>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+              <optional>true</optional>
+          </dependency>
+  
+          <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-test -->
+          <dependency>
+              <groupId>org.springframework.boot</groupId>
+              <artifactId>spring-boot-starter-test</artifactId>
+              <scope>test</scope>
+          </dependency>
+      </dependencies>
+  </project>
+  ```
+
+- YML（application.yml）
+
+  ```yml
+  server:
+    port: 80
+  
+  spring:
+    application:
+      name: consul-consumer-order
+    cloud:
+      consul:
+        host: localhost
+        port: 8500
+        discovery:
+          service-name: ${spring.application.name}
+  
+  ```
+
+- 主启动类
+
+  ```java
+  package com.xiyue.cloud;
+  
+  import org.springframework.boot.SpringApplication;
+  import org.springframework.boot.autoconfigure.SpringBootApplication;
+  import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+  
+  @SpringBootApplication
+  @EnableDiscoveryClient
+  public class OrderConsulMain80 {
+  
+      public static void main(String[] args) {
+          SpringApplication.run(OrderConsulMain80.class,args);
+      }
+  }
+  
+  ```
+
+- 配置Bean
+
+  ```java
+  package com.xiyue.cloud.config;
+  
+  import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+  import org.springframework.context.annotation.Bean;
+  import org.springframework.context.annotation.Configuration;
+  import org.springframework.web.client.RestTemplate;
+  
+  @Configuration
+  public class ApplicationContextConfig {
+  
+      @LoadBalanced
+      @Bean
+      public RestTemplate getRestTemplate(){
+          return new RestTemplate();
+      }
+  
+  }
+  ```
+
+- Controller
+
+  ```java
+  package com.xiyue.cloud.controller;
+  
+  import lombok.extern.slf4j.Slf4j;
+  import org.springframework.web.bind.annotation.GetMapping;
+  import org.springframework.web.bind.annotation.RestController;
+  import org.springframework.web.client.RestTemplate;
+  
+  import javax.annotation.Resource;
+  
+  @RestController
+  @Slf4j
+  public class OrderConsulController {
+  
+      public static final String INVOME_URL = "http://consul-provider-payment";
+  
+      @Resource
+      private RestTemplate restTemplate;
+  
+      @GetMapping("/consumer/payment/consul")
+      public String payment (){
+          String result = restTemplate.getForObject(INVOME_URL+"/payment/consul",String.class);
+          return result;
+      }
+  }
+  ```
+
+- 验证测试
+
+  ![image-20201021104918900](assets/image-20201021104918900.png)
+
+- 访问测试地址: http://localhost/consumer/payment/consul
+
+## 7.5三个注册中心异同点
+
+### 7.5.1CAP
+
+-   C:Consistency(强一致性)
+-   A:Availability(可用性)
+-   P:Partition tolerance(分区容错)
+-   CAP理论关注粒度是数据，而不是整体系统设计的策略
+
+### 7.5.2经典CAP图
+
+![image-20201021105219429](assets/image-20201021105219429.png)
+
+-   AP(Eureka)
+
+  ![image-20201021105307797](assets/image-20201021105307797.png)
+
+ ![image-20201021105337557](assets/image-20201021105337557.png)
+
+-  CP(Zookeeper/Consul)
+
+  ![image-20201021105421180](assets/image-20201021105421180.png)
+
+![image-20201021105454223](assets/image-20201021105454223.png)
+
+# 8.Ribbon负载均衡服务调用
+
+# 9.OpenFeign服务接口调用
+
+# 10.Hystrix断路器
+
+# 11.zuul路由网关（没讲）
+
+# 12.Gateway新一代网关
+
+# 13.SpringCloud config分布式配置中心
+
+# 14.SpringCloud Bus 消息总线
+
+# 15.SpringCloud Stream消息驱动
+
+# 16.SpringCloud Sleuth分布式请求链路追踪
+
+# 17.SpringCloud Alibaba入门简介
+
+# 18.SpringCloud Alibaba Nacos服务注册和配置中心
+
+# 19.SpringCloud Alibaba Sentinel实现熔断与限流
+
+# 20.SpringCloud Alibaba Seata处理分布式事务
