@@ -2991,6 +2991,45 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
 ### 9.4OpenFeign日志打印功能
 
+- 日志打印功能
+
+- 是什么
+
+  ![image-20201021131323308](assets/image-20201021131323308.png)
+
+- 日志级别
+
+  ![image-20201021131344294](assets/image-20201021131344294.png)
+
+- 配置日志bean
+
+  ```java
+  package com.xiyue.cloud.config;
+  
+  import feign.Logger;
+  import org.springframework.context.annotation.Bean;
+  import org.springframework.context.annotation.Configuration;
+  
+  @Configuration
+  public class FeignConfig {
+  
+      @Bean
+      Logger.Level feignLoggerLevel(){
+          return Logger.Level.FULL;
+      }
+  }
+  ```
+
+- YML文件里需要开启日志的Feign客户端
+
+  ```yml
+  logging:
+    level:
+      com.xiyue.cloud.service.PaymentFeignService: debug
+  ```
+
+- 后台日志查看
+
 # 10.Hystrix断路器
 
 # 11.zuul路由网关（没讲）
