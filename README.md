@@ -3527,6 +3527,7 @@ https://learn.hashicorp.com/consul/getting-started/install.html
     - 业务类
 
       ```java
+      
       @GetMapping("/consumer/payment/hystrix/timeout/{id}")
       @HystrixCommand(fallbackMethod = "paymentTimeOutFallbackMethod",commandProperties = {
               @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds",value = "1500")  //3秒钟以内就是正常的业务逻辑
@@ -3645,11 +3646,11 @@ https://learn.hashicorp.com/consul/getting-started/install.html
       - PaymentFallbackService类实现PaymentFeignClientService接口
 
         ```java
-    package com.xiyue.cloud.service;
+        package com.xiyue.cloud.service;
         
-    import org.springframework.stereotype.Component;
+        import org.springframework.stereotype.Component;
         
-    @Component
+        @Component
         public class PaymentFallbackService implements PaymentHystrixService {
             @Override
             public String paymentInfo_OK(Integer id) {
