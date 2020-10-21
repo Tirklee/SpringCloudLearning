@@ -2593,7 +2593,7 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
 - 原理
 
-  ![image-20201021113202876](README.assets/image-20201021113202876.png)
+  ![image-20201021113202876](assets/image-20201021113202876.png)
 
 - RoundRobinRule源码
 
