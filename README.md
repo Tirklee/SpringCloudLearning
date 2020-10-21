@@ -4317,7 +4317,211 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
 ## 12.5通过微服务名实现动态路由
 
+- 默认情况下Gateway会根据注册中心的服务列表，以注册中心上微服务名为路径创建动态路由进行转发，从而实现动态路由的功能
+
+- 启动：  一个eureka7001+两个服务提供者8001/8002
+
+- POM
+
+- YML
+
+  ```yml
+  server:
+    port: 9527
+  spring:
+    application:
+      name: cloud-gateway
+    cloud:
+      gateway:
+        discovery:
+          locator:
+            enabled: true  #开启从注册中心动态创建路由的功能，利用微服务名进行路由
+        routes:
+          - id: payment_routh #路由的ID，没有固定规则但要求唯一，建议配合服务名
+            #uri: http://localhost:8001   #匹配后提供服务的路由地址
+            uri: lb://cloud-payment-service
+            predicates:
+              - Path=/payment/get/**   #断言,路径相匹配的进行路由
+  
+          - id: payment_routh2
+            #uri: http://localhost:8001   #匹配后提供服务的路由地址
+            uri: lb://cloud-payment-service
+            predicates:
+              - Path=/payment/lb/**   #断言,路径相匹配的进行路由
+  eureka:
+    instance:
+      hostname: cloud-gateway-service
+    client:
+      service-url:
+        register-with-eureka: true
+        fetch-registry: true
+        defaultZone: http://eureka7001.com:7001/eureka
+  
+  ```
+
+  - 需要注意的是uri的协议为lb，表示启用Gateway的负载均衡功能。
+  - lb://serviceName是spring cloud gateway在微服务中自动为我们创建的负载均衡uri
+
+- 测试：http://localhost:9527/payment/lb
+   8001/8002两个端口切换
+
 ## 12.6Predicate的使用
+
+- 是什么
+
+  启动我们的gatewat9527
+
+  ![image-20201021204618320](assets/image-20201021204618320.png)
+
+- Route Predicate Factories这个是什么东东？
+
+  ![image-20201021204704469](assets/image-20201021204704469.png)
+
+  ![image-20201021204801976](assets/image-20201021204801976.png)
+
+- 常用的Route Predicate
+
+  ![image-20201021204837563](assets/image-20201021204837563.png)
+
+  - After Route Predicate
+
+    ![image-20201021205251008](assets/image-20201021205251008.png)
+
+    ```java
+       ZonedDateTime zonedDateTime = ZonedDateTime.now();
+       System.out.println(zonedDateTime);
+    ```
+
+    ![image-20201021205347012](assets/image-20201021205347012.png)
+
+    YML
+
+    ```yml
+       - After=2020-03-08T10:59:34.102+08:00[Asia/Shanghai]
+    ```
+
+  - Before Route Predicate
+      YML
+
+    ```yml
+    - After=2020-03-08T10:59:34.102+08:00[Asia/Shanghai]
+    - Before=2020-03-08T10:59:34.102+08:00[Asia/Shanghai]
+    ```
+
+  - Between Route Predicate
+      YML
+
+    ```yml
+    - Between=2020-03-08T10:59:34.102+08:00[Asia/Shanghai],2020-03-08T10:59:34.102+08:00[Asia/Shanghai]
+    ```
+
+  - Cookie Route Predicate
+
+    ![image-20201021210232764](assets/image-20201021210232764.png)
+
+    - 不带cookies访问
+
+    - 带上cookies访问加入
+
+      curl返回中文乱码
+
+      https://blog.csdn.net/leedee/article/details/8268563
+
+    - YML
+
+      ```yml
+       Cookie=username,atguigu    #并且Cookie是username=zhangshuai才能访问
+      ```
+
+      ![image-20201021205954389](assets/image-20201021205954389.png)
+
+  - Header Route Predicate
+
+    ![image-20201021210316037](assets/image-20201021210316037.png)
+
+    YML
+
+    ```yml
+    - Header=X-Request-Id, \d+   #请求头中要有X-Request-Id属性并且值为整数的正则表达式
+    ```
+
+    ![image-20201021210412198](assets/image-20201021210412198.png)
+
+    ![image-20201021210443096](assets/image-20201021210443096.png)
+
+  - Host Route Predicate
+      YML
+
+    ```yml
+      - Host=**.atguigu.com	
+    ```
+
+  - Method Route Predicate
+      YML
+
+    ```yml
+      - Method=GET
+    ```
+
+  - Path Route Predicate
+      YML
+
+  - Query Route Predicate
+    YML
+
+    ```yml
+      - Query=username, \d+ #要有参数名称并且是正整数才能路由
+    ```
+
+  - 小总结
+
+    -  All
+
+      ```yml
+      server:
+        port: 9527
+      spring:
+        application:
+          name: cloud-gateway
+        cloud:
+          gateway:
+            discovery:
+              locator:
+                enabled: true  #开启从注册中心动态创建路由的功能，利用微服务名进行路由
+            routes:
+              - id: payment_routh #路由的ID，没有固定规则但要求唯一，建议配合服务名
+                #uri: http://localhost:8001   #匹配后提供服务的路由地址
+                uri: lb://cloud-payment-service
+                predicates:
+                  - Path=/payment/get/**   #断言,路径相匹配的进行路由
+       
+              - id: payment_routh2
+                #uri: http://localhost:8001   #匹配后提供服务的路由地址
+                uri: lb://cloud-payment-service
+                predicates:
+                  - Path=/payment/lb/**   #断言,路径相匹配的进行路由
+                  #- After=2020-03-08T10:59:34.102+08:00[Asia/Shanghai]
+                  #- Cookie=username,zhangshuai #并且Cookie是username=zhangshuai才能访问
+                  #- Header=X-Request-Id, \d+ #请求头中要有X-Request-Id属性并且值为整数的正则表达式
+                  #- Host=**.atguigu.com
+                  #- Method=GET
+                  #- Query=username, \d+ #要有参数名称并且是正整数才能路由
+       
+       
+      eureka:
+        instance:
+          hostname: cloud-gateway-service
+        client:
+          service-url:
+            register-with-eureka: true
+            fetch-registry: true
+            defaultZone: http://eureka7001.com:7001/eureka
+       
+      ```
+
+      
+
+    -  说白了，Predicate就是为了实现一组匹配规则，让请求过来找到对应的Route进行处理
 
 ## 12.7Filter的使用
 
