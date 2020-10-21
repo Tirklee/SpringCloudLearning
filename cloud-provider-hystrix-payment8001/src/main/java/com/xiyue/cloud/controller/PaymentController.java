@@ -55,6 +55,12 @@ public class PaymentController {
     public String paymentInfoHandleException(Integer id){
         return "调用支付接口hystrix服务出现异常：\t"+"ID不能是负数";
     }
-
+    //===服务熔断
+    @GetMapping("/payment/circuit/{id}")
+    public String paymentCircuitBreaker(@PathVariable("id") Integer id){
+        String result = paymentService.paymentCircuitBreaker(id);
+        log.info("*******result:"+result);
+        return result;
+    }
 
 }

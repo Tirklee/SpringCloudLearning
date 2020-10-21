@@ -3705,6 +3705,69 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
 - 服务熔断
 
+  - 断路器:一句话就是家里保险丝
+
+  - 熔断是什么
+
+    ![image-20201021163747931](assets/image-20201021163747931.png)
+
+    大神论文
+      https://martinfowler.com/bliki/CircuitBreaker.html
+
+  - 实操
+
+    - 修改cloud-provider-hystrix-payment8001
+
+    - PaymentService
+
+      ```java
+      //服务熔断
+      @HystrixCommand(fallbackMethod = "paymentCircuitBreaker_fallback",commandProperties = {
+              @HystrixProperty(name = "circuitBreaker.enabled",value = "true"),  //是否开启断路器
+              @HystrixProperty(name = "circuitBreaker.requestVolumeThreshold",value = "10"),   //请求次数
+              @HystrixProperty(name = "circuitBreaker.sleepWindowInMilliseconds",value = "10000"),  //时间范围
+              @HystrixProperty(name = "circuitBreaker.errorThresholdPercentage",value = "60"), //失败率达到多少后跳闸
+      })
+      public String paymentCircuitBreaker(@PathVariable("id") Integer id){
+          if (id < 0){
+              throw new RuntimeException("*****id 不能负数");
+          }
+          String serialNumber = IdUtil.simpleUUID();
+      
+          return Thread.currentThread().getName()+"\t"+"调用成功,流水号："+serialNumber;
+      }
+      public String paymentCircuitBreaker_fallback(@PathVariable("id") Integer id){
+          return "id 不能负数，请稍候再试,(┬＿┬)/~~     id: " +id;
+      }
+      ```
+
+      - why配置这些参数
+
+        ![image-20201021164157521](assets/image-20201021164157521.png)
+
+    - PaymentController
+
+      ```java
+      //===服务熔断
+      @GetMapping("/payment/circuit/{id}")
+      public String paymentCircuitBreaker(@PathVariable("id") Integer id){
+          String result = paymentService.paymentCircuitBreaker(id);
+          log.info("*******result:"+result);
+          return result;
+      }
+      ```
+
+    - 测试
+
+      - 自测cloud-provider-hystrix-payment8001
+
+      -  正确:http://localhost:8001/payment/circuit/31
+      -   错误:http://localhost:8001/payment/circuit/-31
+      -   一次正确一次错误trytry
+      -   重点测试:多次错误,然后慢慢正确，发现刚开始不满足条件，就算是正确的访问地址也不能进行访问，需要慢慢的恢复链路
+
+  - 原理（小总结）
+
 - 服务限流
 
 ## 10.4hystrix工作流程
