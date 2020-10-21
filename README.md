@@ -3808,9 +3808,19 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
         ![image-20201021170109015](assets/image-20201021170109015.png)
 
-- 服务限流
+- 服务限流:后面高级篇讲解alibaba的Sentinel说明
 
 ## 10.4hystrix工作流程
+
+- https://github.com/Netflix/Hystrix/wiki/How-it-Works
+
+- hystrix工作流程
+
+  - 官网图例
+
+  - 步骤说明
+
+    ![image-20201021170650592](assets/image-20201021170650592.png)
 
 ## 10.5服务监控hystrixDashboard
 
