@@ -3644,12 +3644,56 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
       - PaymentFallbackService类实现PaymentFeignClientService接口
 
-      - YML
-
+        ```java
+    package com.xiyue.cloud.service;
+        
+    import org.springframework.stereotype.Component;
+        
+    @Component
+        public class PaymentFallbackService implements PaymentHystrixService {
+            @Override
+            public String paymentInfo_OK(Integer id) {
+                return "-----PaymentFallbackService fall back-paymentInfo_OK , (┬＿┬)";
+            }
+        
+            @Override
+            public String paymentInfo_TimeOut(Integer id) {
+                return "-----PaymentFallbackService fall back-paymentInfo_TimeOut , (┬＿┬)";
+            }
+        }
+        ```
+      
+      - YML(application.yml)
+      
+        ```yml
+        feign:
+          hystrix:
+            enabled: true #如果处理自身的容错就开启。开启方式与生产端不一样。
+        ```
+      
       - PaymentFeignClientService接口
-
+      
+        ```java
+        package com.xiyue.cloud.service;
+        
+        import org.springframework.cloud.openfeign.FeignClient;
+        import org.springframework.stereotype.Component;
+        import org.springframework.web.bind.annotation.GetMapping;
+        import org.springframework.web.bind.annotation.PathVariable;
+        
+        @Component
+        @FeignClient(value = "CLOUD-PROVIDER-HYSTRIX-PAYMENT",fallback = PaymentFallbackService.class)
+        public interface PaymentHystrixService {
+            @GetMapping("/payment/hystrix/ok/{id}")
+            public String paymentInfo_OK(@PathVariable("id") Integer id);
+        
+            @GetMapping("/payment/hystrix/timeout/{id}")
+            public String paymentInfo_TimeOut(@PathVariable("id") Integer id);
+        }
+        ```
+      
       -  测试
-
+      
         - 单个eureka先启动7001    
         -  PaymentHystrixMain8001启动
         - 正常访问测试:http://localhost/consumer/payment/hystrix/ok/31
