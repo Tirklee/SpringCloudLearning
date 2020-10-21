@@ -3032,6 +3032,260 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
 # 10.Hystrix断路器
 
+## 10.1概述
+
+- 分布式系统面临的问题
+
+  ![image-20201021132353294](assets/image-20201021132353294.png)
+
+  ![image-20201021132419826](assets/image-20201021132419826.png)
+
+  ![image-20201021132521674](assets/image-20201021132521674.png)
+
+- 是什么
+
+  ![image-20201021132655825](README.assets/image-20201021132655825.png)
+
+- 能干嘛
+
+  - 服务降级
+
+  - 服务熔断
+
+  - 接近实时的监控
+
+  - 。。。。。
+
+- 官网资料:https://github.com/Netflix/Hystrix/wiki/How-To-Use
+
+- Hystrix官宣，停更进维
+
+  https://github.com/Netflix/Hystrix
+
+  ![image-20201021133010122](assets/image-20201021133010122.png)
+
+  -   被动修复bugs
+
+  -   不再接受合并请求
+
+  -   不再发布新版本
+
+## 10.2Hystrix重要概念
+
+- 服务降级
+
+  -   服务器忙，请稍候再试，不让客户端等待并立刻返回一个友好提示，fallback
+
+  -   哪些情况会触发降级
+
+    - ​    程序运行异常
+
+    - ​    超时
+
+    - ​    服务熔断触发服务降级
+
+    - ​    线程池/信号量打满也会导致服务降级
+
+- 服务熔断
+
+  -   类比保险丝达到最大服务访问后，直接拒绝访问，拉闸限电，然后调用服务降级的方法并返回友好提示
+
+  -   就是保险丝：服务的降级->进而熔断->恢复调用链路
+
+- 服务限流:秒杀高并发等操作，严禁一窝蜂的过来拥挤，大家排队，一秒钟N个，有序进行
+
+## 10.3hystrix案例
+
+- 构建
+
+  - 新建cloud-provider-hystrix-payment8001
+
+  - POM
+
+    ```xml
+    <?xml version="1.0" encoding="UTF-8"?>
+    <project xmlns="http://maven.apache.org/POM/4.0.0"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+        <parent>
+            <artifactId>cloud2020</artifactId>
+            <groupId>com.xiyue.cloud</groupId>
+            <version>1.0-SNAPSHOT</version>
+        </parent>
+        <modelVersion>4.0.0</modelVersion>
+    
+        <artifactId>cloud-provider-hystrix-payment8001</artifactId>
+    
+        <dependencies>
+            <!--新增hystrix-->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+            </dependency>
+            <dependency>
+                <groupId>com.xiyue.cloud</groupId>
+                <artifactId>cloud-api-commons</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-web</artifactId>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-actuator</artifactId>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-devtools</artifactId>
+                <scope>runtime</scope>
+                <optional>true</optional>
+            </dependency>
+    
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-test</artifactId>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    
+    </project>
+    ```
+
+  - YML(application.yml)
+
+    ```yml
+    server:
+      port: 8001
+    
+    eureka:
+      client:
+        register-with-eureka: true    #表识不向注册中心注册自己
+        fetch-registry: true   #表示自己就是注册中心，职责是维护服务实例，并不需要去检索服务
+        service-url:
+          # defaultZone: http://eureka7002.com:7002/eureka/    #设置与eureka server交互的地址查询服务和注册服务都需要依赖这个地址
+          defaultZone: http://eureka7001.com:7001/eureka/
+    #  server:
+    #    enable-self-preservation: false
+    spring:
+      application:
+        name: cloud-provider-hystrix-payment
+      #    eviction-interval-timer-in-ms: 2000
+    ```
+
+  - 主启动
+
+    ```java
+    package com.xiyue.cloud;
+    
+    import org.springframework.boot.SpringApplication;
+    import org.springframework.boot.autoconfigure.SpringBootApplication;
+    import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+    
+    @SpringBootApplication
+    @EnableEurekaClient
+    public class PaymentHystrixMain8001 {
+        public static void main(String[] args) {
+            SpringApplication.run(PaymentHystrixMain8001.class,args);
+        }
+    }
+    ```
+
+  - 业务类
+
+    - service
+
+      ```java
+      package com.xiyue.cloud.service;
+      
+      import org.springframework.stereotype.Service;
+      
+      import java.util.concurrent.TimeUnit;
+      
+      @Service
+      public class PaymentService {
+      
+          //成功
+          public String paymentInfo_OK(Integer id){
+              return "线程池："+Thread.currentThread().getName()+"   paymentInfo_OK,id：  "+id+"\t"+"哈哈哈"  ;
+          }
+      
+          //失败
+          public String paymentInfo_TimeOut(Integer id){
+              int timeNumber = 3;
+              try { TimeUnit.SECONDS.sleep(timeNumber); }catch (Exception e) {e.printStackTrace();}
+              return "线程池："+Thread.currentThread().getName()+"   paymentInfo_TimeOut,id：  "+id+"\t"+"呜呜呜"+" 耗时(秒)"+timeNumber;
+          }
+      
+      }
+      ```
+
+    - controller
+
+      ```java
+      package com.xiyue.cloud.service;
+      
+      import org.springframework.stereotype.Service;
+      
+      import java.util.concurrent.TimeUnit;
+      
+      @Service
+      public class PaymentService {
+      
+          //成功
+          public String paymentInfo_OK(Integer id){
+              return "线程池："+Thread.currentThread().getName()+"   paymentInfo_OK,id：  "+id+"\t"+"哈哈哈"  ;
+          }
+      
+          //失败
+          public String paymentInfo_TimeOut(Integer id){
+              int timeNumber = 3;
+              try { TimeUnit.SECONDS.sleep(timeNumber); }catch (Exception e) {e.printStackTrace();}
+              return "线程池："+Thread.currentThread().getName()+"   paymentInfo_TimeOut,id：  "+id+"\t"+"呜呜呜"+" 耗时(秒)"+timeNumber;
+          }
+      
+      }
+      ```
+
+  - 正常测试
+
+    - 启动eureka7001
+
+    - 启动cloud-provider-hystrix-payment8001
+
+    - 访问
+        访问:http://localhost:8001/payment/hystrix/ok/31
+        每次调用耗费5秒钟:http://localhost:8001/payment/hystrix/timeout/31
+
+    - 上述module均OK:以上述为根基平台，从正确->错误->降级熔断->恢复
+
+- 高并发测试
+
+- 故障现象和导致原因
+
+- 上诉结论
+
+- 如何解决？解决的要求
+
+- 服务降级
+
+- 服务熔断
+
+- 服务限流
+
+## 10.4hystrix工作流程
+
+## 10.5服务监控hystrixDashboard
+
 # 11.zuul路由网关（没讲）
 
 # 12.Gateway新一代网关
