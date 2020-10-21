@@ -2467,7 +2467,7 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
   LB（负载均衡）
 
-  ![image-20201021110636241](README.assets/image-20201021110636241.png)
+  ![image-20201021110636241](assets/image-20201021110636241.png)
 
   >   集中式LB
   >
