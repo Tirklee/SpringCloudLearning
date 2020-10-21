@@ -3824,6 +3824,156 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
 ## 10.5服务监控hystrixDashboard
 
+## 10.1概述
+
+![image-20201021171810100](assets/image-20201021171810100.png)
+
+## 10.2仪表盘9001
+
+- 新建cloud-consumer-hystrix-dashboard9001
+
+- POM
+
+  ```xml
+  <?xml version="1.0" encoding="UTF-8"?>
+  <project xmlns="http://maven.apache.org/POM/4.0.0"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+      <parent>
+          <artifactId>cloud2020</artifactId>
+          <groupId>com.xiyue.cloud</groupId>
+          <version>1.0-SNAPSHOT</version>
+      </parent>
+      <modelVersion>4.0.0</modelVersion>
+  
+      <artifactId>cloud-consumer-hystrix-dashboard9001</artifactId>
+      <dependencies>
+          <!--新增hystrix dashboard-->
+          <dependency>
+              <groupId>org.springframework.cloud</groupId>
+              <artifactId>spring-cloud-starter-netflix-hystrix-dashboard</artifactId>
+          </dependency>
+          <dependency>
+              <groupId>org.springframework.boot</groupId>
+              <artifactId>spring-boot-starter-actuator</artifactId>
+          </dependency>
+  
+          <dependency>
+              <groupId>org.springframework.boot</groupId>
+              <artifactId>spring-boot-devtools</artifactId>
+              <scope>runtime</scope>
+              <optional>true</optional>
+          </dependency>
+  
+          <dependency>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+              <optional>true</optional>
+          </dependency>
+          <dependency>
+              <groupId>org.springframework.boot</groupId>
+              <artifactId>spring-boot-starter-test</artifactId>
+              <scope>test</scope>
+          </dependency>
+      </dependencies>
+  
+  </project>
+  ```
+
+- YML（application.yml）
+
+  ```yml
+  server:
+    port: 9001
+  ```
+
+- HystrixDashboardMain9001+新注解@EnableHystrixDashboard
+
+  ![image-20201021173827480](assets/image-20201021173827480.png)
+
+- 所有Provider微服务提供类（8001/8002/8003）都需要监控依赖配置
+
+- 启动cloud-consumer-hystrix-dashboard9001该微服务后续将监控微服务8001：http://localhost:9001/hystrix
+
+## 10.3断路器演示
+
+- 修改cloud-provider-hystrix-payment8001
+
+  - 注意：新版本Hystrix需要在主启动类MainAppHystrix8001中指定监控路径    
+
+    ```java
+    @Bean
+    public ServletRegistrationBean getServlet(){
+        HystrixMetricsStreamServlet streamServlet = new HystrixMetricsStreamServlet();
+        ServletRegistrationBean registrationBean = new ServletRegistrationBean(streamServlet);
+        registrationBean.setLoadOnStartup(1);
+        registrationBean.addUrlMappings("/hystrix.stream");
+        registrationBean.setName("HystrixMetricsStreamServlet");
+        return registrationBean;
+    }
+    ```
+
+    
+
+  - Unable to connect to Command Metric Stream
+
+  - 404
+
+- 监控测试    
+
+  - 启动1个eureka或者3个eureka集群均可    
+
+  - 观察监控窗
+
+    - 9001监控8001 
+
+      - 填写监控地址  
+      - http://localhost:8001/hystrix.stream
+
+    - 测试地址        
+
+      - http://localhost:8001/payment/circuit/31
+
+      - http://localhost:8001/payment/circuit/-31
+
+      - 上述测试通过：ok        
+
+      - 先访问正确地址，再访问错误地址，再正确地址，会发现图示断路器都是慢慢放开的
+
+        - 监控结果，成功
+
+          ![image-20201021174650118](assets/image-20201021174650118.png)          
+
+        - 监控结果，失败
+
+          ![image-20201021174714069](assets/image-20201021174714069.png)
+
+    - 如何看 
+
+      - 7色
+
+      - 1圈
+
+        ![image-20201021174830960](assets/image-20201021174830960.png)
+
+      - 1线
+
+        ![image-20201021174847834](assets/image-20201021174847834.png)
+
+      -  整图说明
+
+        ![image-20201021174914207](assets/image-20201021174914207.png)
+
+        ![image-20201021174935925](assets/image-20201021174935925.png)
+
+      -  整图说明2      
+
+        ![image-20201021175017300](assets/image-20201021175017300.png)
+
+    - 搞懂一个才能看懂复杂的
+
+      ![image-20201021175047629](assets/image-20201021175047629.png)
+
 # 11.zuul路由网关（没讲）
 
 # 12.Gateway新一代网关
