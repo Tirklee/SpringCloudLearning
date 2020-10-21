@@ -2933,6 +2933,50 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
 ## 9.3OpenFeign超时控制
 
+- 超时设置，故意设置超时演示出错情况
+
+  - 服务提供方8001故意写暂停程序
+
+    ```java
+    @GetMapping(value = "/payment/feign/timeout")
+    public String paymentFeignTimeout(){
+        try { TimeUnit.SECONDS.sleep(3); }catch (Exception e) {e.printStackTrace();}
+        return serverPort;
+    }
+    ```
+
+  - 服务消费方80添加超时方法PaymentFeignService
+
+    ```java
+    @GetMapping(value = "/consumer/payment/feign/timeout")
+    public String paymentFeignTimeout(){
+       return paymentFeignService.paymentFeignTimeout();
+    }
+    ```
+
+  - 服务消费方80添加超时方法OrderFeignController
+
+    ```java
+    @GetMapping(value = "/consumer/payment/feign/timeout")
+    public String paymentFeignTimeout(){
+       return paymentFeignService.paymentFeignTimeout();
+    }
+    ```
+
+  - 测试
+
+    - http://localhost/consumer/payment/feign/timeout
+
+    - 错误页面
+
+      ![image-20201021124844844](assets/image-20201021124844844.png)
+
+- OpenFeign默认等待一秒钟，超过后报错
+
+- 是什么
+
+- YML文件里需要开启OpenFeign客户端超时控制
+
 ### 9.4OpenFeign日志打印功能
 
 # 10.Hystrix断路器
