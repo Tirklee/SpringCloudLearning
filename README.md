@@ -2616,15 +2616,129 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
   ​    1.ApplicationContextBean去掉@LoadBalanced
 
-  
+  ![image-20201021115714021](assets/image-20201021115714021.png)
 
   ​    2.LoadBalancer接口
 
+  ```java
+  package com.xiyue.cloud.lb;
+  
+  import org.springframework.cloud.client.ServiceInstance;
+  
+  import java.util.List;
+  
+  public interface LoadBalancer {
+      //收集服务器总共有多少台能够提供服务的机器，并放到list里面
+      ServiceInstance instances(List<ServiceInstance> serviceInstances);
+  }
+  ```
+
   ​    3.MyLB
+
+  ```java
+  package com.xiyue.cloud.lb;
+  
+  import org.springframework.cloud.client.ServiceInstance;
+  import org.springframework.stereotype.Component;
+  
+  import java.util.List;
+  import java.util.concurrent.atomic.AtomicInteger;
+  
+  @Component
+  public class MyLB implements LoadBalancer {
+      private AtomicInteger atomicInteger = new AtomicInteger(0);
+      //坐标
+      private final int getAndIncrement(){
+          int current;
+          int next;
+          do {
+              current = this.atomicInteger.get();
+              next = current >= 2147483647 ? 0 : current + 1;
+          }while (!this.atomicInteger.compareAndSet(current,next));  //第一个参数是期望值，第二个参数是修改值是
+          System.out.println("*******第几次访问，次数next: "+next);
+          return next;
+      }
+  
+      @Override
+      public ServiceInstance instances(List<ServiceInstance> serviceInstances) {  //得到机器的列表
+          int index = getAndIncrement() % serviceInstances.size(); //得到服务器的下标位置
+          return serviceInstances.get(index);
+      }
+  }
+  ```
 
   ​    4.OrderController
 
-  ​    5.测试: http://localhost/consumer/payment/lb
+  ```java
+  package com.xiyue.cloud.controller;
+  
+  import com.xiyue.cloud.entities.CommonResult;
+  import com.xiyue.cloud.entities.Payment;
+  import com.xiyue.cloud.lb.LoadBalancer;
+  import lombok.extern.slf4j.Slf4j;
+  import org.springframework.cloud.client.ServiceInstance;
+  import org.springframework.cloud.client.discovery.DiscoveryClient;
+  import org.springframework.http.ResponseEntity;
+  import org.springframework.web.bind.annotation.GetMapping;
+  import org.springframework.web.bind.annotation.PathVariable;
+  import org.springframework.web.bind.annotation.RestController;
+  import org.springframework.web.client.RestTemplate;
+  
+  import javax.annotation.Resource;
+  import java.net.URI;
+  import java.util.List;
+  
+  @RestController
+  @Slf4j
+  public class OrderController {
+  
+      // public static final String PAYMENT_URL = "http://localhost:8001";
+      public static final String PAYMENT_URL = "http://CLOUD-PAYMENT-SERVICE";
+  
+      @Resource
+      private RestTemplate restTemplate;
+  
+      @Resource
+      private LoadBalancer loadBalancer;
+  
+      @Resource
+      private DiscoveryClient discoveryClient;
+  
+      @GetMapping("/consumer/payment/create")
+      public CommonResult<Payment>   create( Payment payment){
+          return restTemplate.postForObject(PAYMENT_URL+"/payment/create",payment,CommonResult.class);  //写操作
+      }
+  
+      @GetMapping("/consumer/payment/get/{id}")
+      public CommonResult<Payment> getPayment(@PathVariable("id") Long id){
+          return restTemplate.getForObject(PAYMENT_URL+"/payment/get/"+id,CommonResult.class);
+      }
+  
+      @GetMapping("/consumer/payment/getForEntity/{id}")
+      public CommonResult<Payment> getPayment2(@PathVariable("id") Long id){
+          ResponseEntity<CommonResult> entity = restTemplate.getForEntity(PAYMENT_URL+"/payment/get/"+id,CommonResult.class);
+          if (entity.getStatusCode().is2xxSuccessful()){
+              //  log.info(entity.getStatusCode()+"\t"+entity.getHeaders());
+              return entity.getBody();
+          }else {
+              return new CommonResult<>(444,"操作失败");
+          }
+      }
+  
+      @GetMapping(value = "/consumer/payment/lb")
+      public String getPaymentLB(){
+          List<ServiceInstance> instances = discoveryClient.getInstances("CLOUD-PAYMENT-SERVICE");
+          if (instances == null || instances.size() <= 0){
+              return null;
+          }
+          ServiceInstance serviceInstance = loadBalancer.instances(instances);
+          URI uri = serviceInstance.getUri();
+          return restTemplate.getForObject(uri+"/payment/lb",String.class);
+      }
+  }
+  ```
+
+  ​    5.测试: http://localhost/consumer/payment/lb（8001与8002来回切换）
 
 # 9.OpenFeign服务接口调用
 
