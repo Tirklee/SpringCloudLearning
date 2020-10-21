@@ -2446,6 +2446,186 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
 # 8.Ribbon负载均衡服务调用
 
+## 8.1概述
+
+- 是什么
+
+  ![image-20201021110240528](assets/image-20201021110240528.png)
+
+- 官网资料
+
+  https://github.com/Netflix/ribbon/wiki/Getting-Started
+  Ribbon目前也进入维护模式
+
+  ![image-20201021110355178](assets/image-20201021110355178.png)
+
+  未来替换方案
+
+  ![image-20201021110427589](assets/image-20201021110427589.png)
+
+- 能干嘛
+
+  LB（负载均衡）
+
+  ![image-20201021110636241](README.assets/image-20201021110636241.png)
+
+  >   集中式LB
+  >
+  > ![image-20201021110735753](assets/image-20201021110735753.png)
+  >
+  >   进程内LB
+  >
+  > ![image-20201021110804411](assets/image-20201021110804411.png)
+
+  
+
+  前面我们讲解过了80通过轮询负载访问8001/8002
+  一句话:负载均衡+RestTemplate调用
+
+## 8.2Ribbon负载均衡演示
+
+- 架构说明
+
+  ![image-20201021111111774](assets/image-20201021111111774.png)
+
+  ![image-20201021111131305](assets/image-20201021111131305.png)
+
+  总结：Ribbon其实就是一个软负载均衡的客户端组件，他可以和其他所需请求的客户端结合使用，和eureka结合只是其中的一个实例。
+
+- POM
+
+  ![image-20201021111236426](assets/image-20201021111236426.png)
+
+  ![image-20201021111255789](assets/image-20201021111255789.png)
+
+- 二说RestTemplate的使用
+
+  - 官网
+
+    https://docs.spring.io/spring-framework/docs/5.2.2.RELEASE/javadoc-api/org/springframework/web/client/RestTemplate.html
+
+    ![image-20201021111522129](assets/image-20201021111522129.png)
+
+  - getForObject方法/getForEntity方法
+
+    ![image-20201021111602955](assets/image-20201021111602955.png)
+
+  - postForObject/postForEntity
+
+    ![image-20201021111625520](assets/image-20201021111625520.png)
+
+  - GET请求方法
+
+  - POST请求方法
+
+## 8.3Ribbon核心组件IRule
+
+### 8.3.1IRule:根据特定算法从服务列表中选取一个要访问的服务
+
+![image-20201021112138978](assets/image-20201021112138978.png)
+
+- com.netflix.loadbalancer.RoundRobinRule:轮询
+- com.netflix.loadbalancer.RandomRule:随机
+- com.netflix.loadbalancer.RetryRule: 先按照RoundRobinRule的策略获取服务，如果获取服务失败则在指定时间内会进行重试
+- WeightedResponseTimeRule :对RoundRobinRule的扩展，响应速度越快的实例选择权重越大，越容易被选择
+- BestAvailableRule :会先过滤掉由于多次访问故障而处于断路器跳闸状态的服务，然后选择一个并发量最小的服务
+- AvailabilityFilteringRule : 先过滤掉故障实例，再选择并发较小的实例
+- ZoneAvoidanceRule:  默认规则，复合判断server所在区域的性能和server的可用性选择服务器
+
+### 8.3.2如何替换
+
+- 修改cloud-consumer-order80
+
+- 注意配置细节
+
+  ![image-20201021112413373](assets/image-20201021112413373.png)
+
+- 新建package:com.atguigu.myrule
+
+  ![image-20201021112741811](assets/image-20201021112741811.png)
+
+- 上面包下新建MySelfRule规则类
+
+  ```java
+  package com.xiyue.myrule;
+  
+  import com.netflix.loadbalancer.IRule;
+  import com.netflix.loadbalancer.RandomRule;
+  import org.springframework.context.annotation.Bean;
+  import org.springframework.context.annotation.Configuration;
+  
+  @Configuration
+  public class MySelfRule {
+  
+      @Bean
+      public IRule myRule(){
+          return new RandomRule();//定义为随机
+      }
+  }
+  ```
+
+- 主启动类添加@RibbonClient
+
+  ```java
+  package com.xiyue.cloud;
+  
+  import com.xiyue.myrule.MySelfRule;
+  import org.springframework.boot.SpringApplication;
+  import org.springframework.boot.autoconfigure.SpringBootApplication;
+  import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+  import org.springframework.cloud.netflix.ribbon.RibbonClient;
+  
+  @EnableEurekaClient
+  @SpringBootApplication
+  @RibbonClient(name = "CLOUD-PAYMENT-SERVICE",configuration = MySelfRule.class)
+  public class OrderMain80 {
+      public static void main(String[] args) {
+          SpringApplication.run(OrderMain80.class,args);
+      }
+  }
+  ```
+
+  
+
+- 测试:http://localhost/consumer/payment/get/31
+
+## 8.4Ribbon负载均衡算法
+
+- 原理
+
+  ![image-20201021113202876](README.assets/image-20201021113202876.png)
+
+- RoundRobinRule源码
+
+- 手写
+
+  自己试着写一个本地负载均衡器试试
+
+  -  7001/7002集群启动
+
+  -   8001/8002微服务改造: controller
+
+    ```java
+    @GetMapping(value = "/payment/lb")
+    public String getPaymentLB(){
+        return serverPort;
+    }
+    ```
+
+  -   80订单微服务改造
+
+  ​    1.ApplicationContextBean去掉@LoadBalanced
+
+  
+
+  ​    2.LoadBalancer接口
+
+  ​    3.MyLB
+
+  ​    4.OrderController
+
+  ​    5.测试: http://localhost/consumer/payment/lb
+
 # 9.OpenFeign服务接口调用
 
 # 10.Hystrix断路器
