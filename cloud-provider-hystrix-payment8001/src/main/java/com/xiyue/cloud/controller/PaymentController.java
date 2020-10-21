@@ -31,4 +31,15 @@ public class PaymentController {
         log.info("*******result:"+result);
         return result;
     }
+
+    @GetMapping(value = "/payment/get/{id}")
+    public String getPaymentInfo(@PathVariable("id") Integer id){
+        return String.valueOf(id);
+    }
+    @GetMapping(value = "/payment/timeout/{id}")
+    public String paymentTimeout(@PathVariable("id") Integer id){
+        return String.valueOf(id);
+    }
+
+
 }

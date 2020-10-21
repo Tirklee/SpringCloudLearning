@@ -3270,13 +3270,321 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
 - 高并发测试
 
+  - 上述在非高并发情形下，还能勉强满足   but.....
+
+  - Jmeter压测测试
+
+    -   开启Jmeter，来20000个并发压死8001，20000个请求都去访问paymentInfo_TimeOut服务
+
+      ![image-20201021140004710](assets/image-20201021140004710.png)
+
+    -   再来一个访问
+          http://localhost:8001/payment/hystrix/ok/31
+          http://localhost:8001/payment/hystrix/timeout/31
+
+    -   看演示结果
+      - 两个都在自己转圈圈
+      - 为什么会被卡死(tomcat的默认的工作线程数被打满了，没有多余的线程来分解压力和处理。)
+
+  - Jmeter压测结论
+    上面还是服务提供者8001自己测试，假如此时外部的消费者80也来访问，那消费者只能干等，最终导致消费端80不满意，服务端8001直接被拖死
+
+  - 看热闹不嫌弃事大，80新建加入:cloud-consumer-feign-hystrix-order80
+
+    - 新建cloud-consumer-feign-hystrix-order80
+
+    - POM
+
+      ```xml
+      <?xml version="1.0" encoding="UTF-8"?>
+      <project xmlns="http://maven.apache.org/POM/4.0.0"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+          <parent>
+              <artifactId>cloud2020</artifactId>
+              <groupId>com.xiyue.cloud</groupId>
+              <version>1.0-SNAPSHOT</version>
+          </parent>
+          <modelVersion>4.0.0</modelVersion>
+      
+          <artifactId>cloud-consumer-feign-hystrix-order80</artifactId>
+      
+          <dependencies>
+              <!--新增hystrix-->
+              <dependency>
+                  <groupId>org.springframework.cloud</groupId>
+                  <artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
+              </dependency>
+              <dependency>
+                  <groupId>org.springframework.cloud</groupId>
+                  <artifactId>spring-cloud-starter-openfeign</artifactId>
+              </dependency>
+              <dependency>
+                  <groupId>org.springframework.cloud</groupId>
+                  <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+              </dependency>
+              <dependency>
+                  <groupId>com.xiyue.cloud</groupId>
+                  <artifactId>cloud-api-commons</artifactId>
+                  <version>${project.version}</version>
+              </dependency>
+              <dependency>
+                  <groupId>org.springframework.boot</groupId>
+                  <artifactId>spring-boot-starter-web</artifactId>
+              </dependency>
+      
+              <dependency>
+                  <groupId>org.springframework.boot</groupId>
+                  <artifactId>spring-boot-starter-actuator</artifactId>
+              </dependency>
+      
+              <dependency>
+                  <groupId>org.springframework.boot</groupId>
+                  <artifactId>spring-boot-devtools</artifactId>
+                  <scope>runtime</scope>
+                  <optional>true</optional>
+              </dependency>
+      
+              <dependency>
+                  <groupId>org.projectlombok</groupId>
+                  <artifactId>lombok</artifactId>
+                  <optional>true</optional>
+              </dependency>
+              <dependency>
+                  <groupId>org.springframework.boot</groupId>
+                  <artifactId>spring-boot-starter-test</artifactId>
+                  <scope>test</scope>
+              </dependency>
+          </dependencies>
+      </project>
+      ```
+
+    - YML(application.yml)
+
+      ```yml
+      server:
+       port: 80
+       
+      eureka:
+        client:
+          register-with-eureka: true    #表识不向注册中心注册自己
+          fetch-registry: true   #表示自己就是注册中心，职责是维护服务实例，并不需要去检索服务
+          service-url:
+            defaultZone: http://eureka7001.com:7001/eureka/
+      
+      spring:
+        application:
+          name: cloud-provider-hystrix-order
+      ```
+
+    - 主启动
+
+      ```java
+      package com.xiyue.cloud;
+      
+      import org.springframework.boot.SpringApplication;
+      import org.springframework.boot.autoconfigure.SpringBootApplication;
+      import org.springframework.cloud.openfeign.EnableFeignClients;
+      
+      @SpringBootApplication
+      @EnableFeignClients
+      public class OrderHystrixMain80 {
+          public static void main(String[] args) {
+              SpringApplication.run(OrderHystrixMain80.class,args);
+          }
+      }
+      ```
+
+    - 业务类
+
+      -  PaymentHystrixService
+
+        ```java
+        package com.xiyue.cloud.service;
+        
+        import org.springframework.cloud.openfeign.FeignClient;
+        import org.springframework.stereotype.Component;
+        import org.springframework.web.bind.annotation.GetMapping;
+        import org.springframework.web.bind.annotation.PathVariable;
+        
+        @Component
+        @FeignClient(value = "CLOUD-PROVIDER-HYSTRIX-PAYMENT")
+        public interface PaymentHystrixService {
+            @GetMapping("/payment/hystrix/ok/{id}")
+            public String paymentInfo_OK(@PathVariable("id") Integer id);
+        
+            @GetMapping("/payment/hystrix/timeout/{id}")
+            public String paymentInfo_TimeOut(@PathVariable("id") Integer id);
+        }
+        ```
+
+      -  OrderHystrixController
+
+        ```java
+        package com.xiyue.cloud.controller;
+        
+        import com.xiyue.cloud.service.PaymentHystrixService;
+        import lombok.extern.slf4j.Slf4j;
+        import org.springframework.beans.factory.annotation.Value;
+        import org.springframework.web.bind.annotation.GetMapping;
+        import org.springframework.web.bind.annotation.PathVariable;
+        import org.springframework.web.bind.annotation.RestController;
+        
+        import javax.annotation.Resource;
+        
+        @RestController
+        @Slf4j
+        public class OrderHystrixController {
+        
+            @Resource
+            private PaymentHystrixService paymentHystrixService;
+        
+            @Value("${server.port}")
+            private String serverPort;
+        
+            @GetMapping("/consumer/payment/hystrix/ok/{id}")
+            public String paymentInfo_OK(@PathVariable("id") Integer id){
+                String result = paymentHystrixService.paymentInfo_OK(id);
+                log.info("*******result:"+result);
+                return result;
+            }
+            @GetMapping("/consumer/payment/hystrix/timeout/{id}")
+            public String paymentInfo_TimeOut(@PathVariable("id") Integer id){
+                String result = paymentHystrixService.paymentInfo_TimeOut(id);
+                log.info("*******result:"+result);
+                return result;
+            }
+        
+        }
+        ```
+
+    - 正常测试
+       http://localhost/consumer/payment/hystrix/ok/31
+
+    - 高并发测试
+
+      -  2W个线程压8001
+      -   消费端80微服务再去访问正常的OK微服务8001地址
+      -   http://localhost/consumer/payment/hystrix/timeout/31
+      -   消费者80，呜呜呜
+        - 要么转圈圈等待
+        - 要么消费端报超时错误
+
 - 故障现象和导致原因
+
+  - 8001同一层次的其他接口服务被困死，因为tomcat线程里面的工作线程已经被挤占完毕
+  - 80此时调用8001，客户端访问响应缓慢，转圈圈
 
 - 上诉结论
 
+  - 正因为有上述故障或不佳表现，才有我们的降级/容错/限流等技术诞生
+
 - 如何解决？解决的要求
 
+  - 超时导致服务器变慢（转圈）超时不再等待
+  - 出错（宕机或程序运行出错）出错要有兜底
+  - 解决
+    -  对方服务（8001）超时了，调用者（80）不能一直卡死等待，必须有服务降级
+
+    - 对方服务（8001）down机了，调用者（80）不能一直卡死等待，必须有服务降级
+
+    - 对方服务（8001）OK，调用者（80）自己出故障或有自我要求（自己的等待时间小于服务提供者），自己处理降级
+
 - 服务降级
+
+  - 降低配置:@HystrixCommand
+
+  - 8001先从自身找问题:设置自身调用超时时间的峰值，峰值内可以正常运行，超过了需要有兜底的方法处理，作服务降级fallback
+
+  - 8001fallback
+
+    - 业务类启用：@HystrixCommand报异常后如何处理
+
+      -  一旦调用服务方法失败并抛出了错误信息后，会自动调用@HystrixCommand标注好的fallbackMethod调用类中的指定方法
+
+      -   图示
+
+        ![image-20201021143914206](assets/image-20201021143914206.png)
+
+    - 主启动类激活：添加新注解@EnableCircuitBreaker
+
+  - 80fallback
+
+    - 80订单微服务，也可以更好的保护自己，自己也依样画葫芦进行客户端降级保护
+
+    - 题外话，切记:我们自己配置过的热部署方式对java代码的改动明显，但对@HystrixCommand内属性的修改建议重启微服务
+
+    - YML
+
+      ```yml
+      feign:
+        hystrix:
+          enabled: true #如果处理自身的容错就开启。开启方式与生产端不一
+      ```
+
+    - 主启动 @EnableHystrix
+
+    - 业务类
+
+      ```java
+      @GetMapping("/consumer/payment/hystrix/timeout/{id}")
+      @HystrixCommand(fallbackMethod = "paymentTimeOutFallbackMethod",commandProperties = {
+              @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds",value = "1500")  //3秒钟以内就是正常的业务逻辑
+      })
+      public String paymentInfo_TimeOut(@PathVariable("id") Integer id){
+          String result = paymentHystrixService.paymentInfo_TimeOut(id);
+          return result;
+      }
+      
+      //兜底方法
+      public String paymentTimeOutFallbackMethod(@PathVariable("id") Integer id){
+          return "我是消费者80，对付支付系统繁忙请10秒钟后再试或者自己运行出错请检查自己,(┬＿┬)";
+      }
+      ```
+
+  - 目前问题
+
+    - 每个业务方法对应一个兜底的方法，代码膨胀
+    - 统一和自定义的分开
+
+  - 解决问题
+
+    - 每个方法配置一个？？？膨胀
+
+      - feign接口系列
+
+      -  @DefaultProperties(defaultFallback = "")
+
+        ![image-20201021144850665](assets/image-20201021144850665.png)
+
+         ![image-20201021151409458](assets/image-20201021151409458.png)
+
+        说明
+
+        ![image-20201021144946464](assets/image-20201021144946464.png)
+
+      -  controller配置
+
+    - 和业务逻辑混一起？？？混乱
+        服务降级，客户端去调用服务端，碰上服务端宕机或关闭
+        本次案例服务降级处理是在客户端80实现完成的，与服务端8001没有关系，只需要为Feign客户端定义的接口添加一个服务降级处理的实现类即可实现解耦
+        未来我们要面对的异常
+          运行
+          超时
+          宕机
+        再看我们的业务类PaymentController
+        修改cloud-consumer-feign-hystrix-order80
+        根据cloud-consumer-feign-hystrix-order80已经有的PaymentHystrixService接口，重新新建一个类（PaymentFallbackService）实现该接口，统一为接口里面的方法进行异常处理
+        PaymentFallbackService类实现PaymentFeignClientService接口
+        YML
+        PaymentFeignClientService接口
+        测试
+          单个eureka先启动7001
+           PaymentHystrixMain8001启动
+          正常访问测试
+          故意关闭微服务8001
+          客户端自己调用提升
+            此时服务端provider已经down了，但是我们做了服务降级处理，让客户端在服务端不可用时也会获得提示信息而不会挂起耗死服务器
 
 - 服务熔断
 
