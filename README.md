@@ -2742,6 +2742,199 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
 # 9.OpenFeign服务接口调用
 
+## 9.1概述
+
+- OpenFeign是什么
+
+  ![image-20201021120940762](assets/image-20201021120940762.png)
+
+  ![image-20201021121020000](assets/image-20201021121020000.png)
+
+  Feign是一个声明式的web服务客户端，让编写web服务客户端变得非常容易，只需创建一个接口并在接口上添加注解即可
+  GitHub: https://github.com/spring-cloud/spring-cloud-openfeign
+
+- 能干嘛
+
+  ![image-20201021121119677](assets/image-20201021121119677.png)
+
+- Feign和OpenFeign两者区别
+
+  ![image-20201021121240253](assets/image-20201021121240253.png)
+
+## 9.2OpenFeign使用步骤
+
+- 接口+注解:微服务调用接口+@FeignClient
+
+- 新建cloud-consumer-feign-order80:Feign在消费端使用
+
+  ![image-20201021121501727](assets/image-20201021121501727.png)
+
+- POM
+
+  ```xml
+  <?xml version="1.0" encoding="UTF-8"?>
+  <project xmlns="http://maven.apache.org/POM/4.0.0"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+      <parent>
+          <artifactId>cloud2020</artifactId>
+          <groupId>com.xiyue.cloud</groupId>
+          <version>1.0-SNAPSHOT</version>
+      </parent>
+      <modelVersion>4.0.0</modelVersion>
+  
+      <artifactId>cloud-consumer-feign-order80</artifactId>
+      <!--openfeign-->
+      <dependencies>
+          <dependency>
+              <groupId>com.xiyue.cloud</groupId>
+              <artifactId>cloud-api-commons</artifactId>
+              <version>${project.version}</version>
+          </dependency>
+          <dependency>
+              <groupId>org.springframework.cloud</groupId>
+              <artifactId>spring-cloud-starter-openfeign</artifactId>
+          </dependency>
+          <dependency>
+              <groupId>org.springframework.cloud</groupId>
+              <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+          </dependency>
+          <dependency>
+              <groupId>org.springframework.boot</groupId>
+              <artifactId>spring-boot-starter-web</artifactId>
+          </dependency>
+  
+          <dependency>
+              <groupId>org.springframework.boot</groupId>
+              <artifactId>spring-boot-starter-actuator</artifactId>
+          </dependency>
+  
+          <dependency>
+              <groupId>org.springframework.boot</groupId>
+              <artifactId>spring-boot-devtools</artifactId>
+              <scope>runtime</scope>
+              <optional>true</optional>
+          </dependency>
+  
+          <dependency>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+              <optional>true</optional>
+          </dependency>
+          <dependency>
+              <groupId>org.springframework.boot</groupId>
+              <artifactId>spring-boot-starter-test</artifactId>
+              <scope>test</scope>
+          </dependency>
+      </dependencies>
+  </project>
+  ```
+
+- YML(application.yml)
+
+  ```yml
+  server:
+    port: 80
+  eureka:
+    client:
+      register-with-eureka: false
+      service-url:
+        defaultZone: http://eureka7001.com:7001/eureka, http://eureka7002.com:7002/eureka
+  ```
+
+- 主启动类( @EnableFeignClients)
+
+  ```java
+  package com.xiyue.cloud;
+  
+  import org.springframework.boot.SpringApplication;
+  import org.springframework.boot.autoconfigure.SpringBootApplication;
+  import org.springframework.cloud.openfeign.EnableFeignClients;
+  
+  @SpringBootApplication
+  @EnableFeignClients
+  public class OrderFegin80 {
+  
+      public static void main(String[] args) {
+          SpringApplication.run(OrderFegin80.class,args);
+      }
+  }
+  ```
+
+- 业务类
+
+  - 业务逻辑接口+@FeignClient配置调用provider服务
+
+  - 新建PaymentFeignService接口并新增注解@FeignClient
+
+    ```java
+    package com.xiyue.cloud.service;
+    
+    import com.xiyue.cloud.entities.CommonResult;
+    import org.springframework.cloud.openfeign.FeignClient;
+    import org.springframework.stereotype.Component;
+    import org.springframework.web.bind.annotation.GetMapping;
+    import org.springframework.web.bind.annotation.PathVariable;
+    
+    @Component
+    @FeignClient(value = "CLOUD-PAYMENT-SERVICE")
+    public interface PaymentFeignService {
+    
+        @GetMapping(value = "/payment/get/{id}")
+        public CommonResult getPaymentById(@PathVariable("id") Long id);
+    }
+    
+    ```
+
+  - 控制层Controller
+
+    ```java
+    package com.xiyue.cloud.controller;
+    
+    import com.xiyue.cloud.entities.CommonResult;
+    import com.xiyue.cloud.entities.Payment;
+    import com.xiyue.cloud.service.PaymentFeignService;
+    import org.springframework.web.bind.annotation.GetMapping;
+    import org.springframework.web.bind.annotation.PathVariable;
+    import org.springframework.web.bind.annotation.RestController;
+    
+    import javax.annotation.Resource;
+    
+    @RestController
+    public class OrderFeignController {
+    
+        @Resource
+        private PaymentFeignService paymentFeignService;
+    
+        @GetMapping(value = "/consumer/payment/get/{id}")
+        public CommonResult<Payment> getPaymentById(@PathVariable("id") Long id){
+            return paymentFeignService.getPaymentById(id);
+        }
+    
+    ```
+
+- 测试
+
+  
+
+  - 先启动2个eureka集群7001/7002
+
+  - 再启动2个微服务8001/8002
+
+  - 启动OpenFeign启动
+
+  - http://localhost/consumer/payment/get/31
+
+  - Feign自带负载均衡配置项
+
+- 小总结
+
+  ![image-20201021123510865](assets/image-20201021123510865.png)
+
+## 9.3OpenFeign超时控制
+
+### 9.4OpenFeign日志打印功能
+
 # 10.Hystrix断路器
 
 # 11.zuul路由网关（没讲）
