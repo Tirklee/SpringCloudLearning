@@ -4313,7 +4313,7 @@ https://learn.hashicorp.com/consul/getting-started/install.html
               
               ```
 
-              ![image-20201021201117071](README.assets/image-20201021201117071.png)
+              ![image-20201021201117071](assets/image-20201021201117071.png)
 
 ## 12.5通过微服务名实现动态路由
 
