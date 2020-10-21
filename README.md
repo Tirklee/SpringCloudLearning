@@ -4525,6 +4525,101 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
 ## 12.7Filter的使用
 
+- 是什么
+
+  ![image-20201021211346007](assets/image-20201021211346007.png)
+
+- Spring Cloud Gateway的Filter 
+
+  - 生命周期，Only Two
+
+    - pre：在业务逻辑之前
+    - post：在业务逻辑之后
+
+  -   种类，Only Two
+
+    - GatewayFilter(单一)
+
+      ![image-20201021211523648](assets/image-20201021211523648.png)
+
+    - GlobalFilter(全局)
+
+      ![image-20201021211559710](assets/image-20201021211559710.png)
+
+- 常用的GatewayFilter
+
+  - AddRequestParameter
+
+    YML
+
+    ![image-20201021211702280](assets/image-20201021211702280.png)
+
+  -  省略
+
+- 自定义过滤器
+
+  - 自定义全局GlobalFilter
+
+    - 两个主要接口介绍(impiemerts   GlobalFilter ，Ordered)
+
+    - 能干嘛
+
+      - 全局日志记录
+      - 统一网关鉴权     
+      -  。。。。。
+
+    - 案例代码
+
+      ```java
+      package com.xiyue.cloud.filter;
+      
+      import lombok.extern.slf4j.Slf4j;
+      import org.springframework.cloud.gateway.filter.GatewayFilterChain;
+      import org.springframework.cloud.gateway.filter.GlobalFilter;
+      import org.springframework.core.Ordered;
+      import org.springframework.http.HttpStatus;
+      import org.springframework.stereotype.Component;
+      import org.springframework.util.StringUtils;
+      import org.springframework.web.server.ServerWebExchange;
+      import reactor.core.publisher.Mono;
+      
+      import java.util.Date;
+      
+      @Component
+      @Slf4j
+      public class MyLogGateWayFilter implements GlobalFilter,Ordered {
+          @Override
+          public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+      
+              log.info("*********come in MyLogGateWayFilter: "+new Date());
+              String uname = exchange.getRequest().getQueryParams().getFirst("username");
+              if(StringUtils.isEmpty(username)){
+                  log.info("*****用户名为Null 非法用户,(┬＿┬)");
+                  exchange.getResponse().setStatusCode(HttpStatus.NOT_ACCEPTABLE);//给人家一个回应
+                  return exchange.getResponse().setComplete();
+              }
+              return chain.filter(exchange);
+          }
+      
+          @Override
+          public int getOrder() {
+              return 0;
+          }
+      }
+      ```
+
+      
+
+    - 测试
+
+      - 启动
+
+        ![image-20201021212150043](assets/image-20201021212150043.png)
+
+      - 正确 http://localhost:9527/payment/lb?uname=z3
+
+      -  错误
+
 # 13.config分布式配置中心
 
 # 14.SpringCloud Bus 消息总线
