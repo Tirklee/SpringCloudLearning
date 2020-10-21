@@ -3663,8 +3663,6 @@ https://learn.hashicorp.com/consul/getting-started/install.html
         }
         ```
       
-        
-      
       - YML(application.yml)
       
         ```yml
