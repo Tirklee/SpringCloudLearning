@@ -1462,7 +1462,7 @@ service-url:
 >
 > ```java
 > //改为这个：
-> public static final String PAYMENT_URL = "http://CLOUD-PAYMENT-SERVICE";
+> //public static final String PAYMENT_URL = "http://CLOUD-PAYMENT-SERVICE";
 > ```
 
 - 使用@LoadBalanced注解赋予RestTemplate负载均衡的能力
@@ -3044,7 +3044,7 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
 - 是什么
 
-  ![image-20201021132655825](README.assets/image-20201021132655825.png)
+  ![image-20201021132655825](assets/image-20201021132655825.png)
 
 - 能干嘛
 
@@ -3652,6 +3652,7 @@ https://learn.hashicorp.com/consul/getting-started/install.html
         
         @Component
         public class PaymentFallbackService implements PaymentHystrixService {
+            
             @Override
             public String paymentInfo_OK(Integer id) {
                 return "-----PaymentFallbackService fall back-paymentInfo_OK , (┬＿┬)";
