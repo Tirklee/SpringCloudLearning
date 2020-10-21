@@ -2975,7 +2975,19 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
 - 是什么
 
+  ![image-20201021130714291](assets/image-20201021130714291.png)
+
+  - OpenFeign默认支持Ribbon
+
+    ![image-20201021130810048](assets/image-20201021130810048.png)
+
 - YML文件里需要开启OpenFeign客户端超时控制
+
+  ```yml
+  ribbon:
+    ReadTimeout:  5000
+    ConnectTimeout: 5000
+  ```
 
 ### 9.4OpenFeign日志打印功能
 
