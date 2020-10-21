@@ -1,5 +1,6 @@
 package com.xiyue.cloud.controller;
 
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.xiyue.cloud.service.PaymentService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,6 +40,20 @@ public class PaymentController {
     @GetMapping(value = "/payment/timeout/{id}")
     public String paymentTimeout(@PathVariable("id") Integer id){
         return String.valueOf(id);
+    }
+
+    @GetMapping("/payment/hystrix/{id}")
+    @HystrixCommand(fallbackMethod = "")
+    public String paymentInfo(@PathVariable("id")Integer id){
+        if(id>0){
+            return "调用支付接口hystrix服务：\t"+serverPort+"\t entity ID: "+id;
+        }else{
+            throw new RuntimeException("ID不能是负数");
+        }
+    }
+
+    public String paymentInfoHandleException(Integer id){
+        return "调用支付接口hystrix服务出现异常：\t"+"ID不能是负数";
     }
 
 

@@ -3565,26 +3565,97 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
       -  controller配置
 
+        ```java
+        package com.xiyue.cloud.controller;
+        
+        
+        import com.netflix.hystrix.contrib.javanica.annotation.DefaultProperties;
+        import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+        import com.xiyue.cloud.service.PaymentHystrixService;
+        import lombok.extern.slf4j.Slf4j;
+        import org.springframework.web.bind.annotation.GetMapping;
+        import org.springframework.web.bind.annotation.PathVariable;
+        import org.springframework.web.bind.annotation.RestController;
+        
+        import javax.annotation.Resource;
+        
+        @RestController
+        @Slf4j
+        @DefaultProperties(defaultFallback = "payment_Global_FallbackMethod")  //全局的
+        public class OrderHystrixController {
+        
+            @Resource
+            private PaymentHystrixService paymentHystrixService;
+        
+            @GetMapping("/consumer/payment/hystrix/ok/{id}")
+            public String paymentInfo_OK(@PathVariable("id") Integer id){
+                String result = paymentHystrixService.paymentInfo_OK(id);
+                return result;
+            }
+        
+        //    @GetMapping("/consumer/payment/hystrix/timeout/{id}")
+        //    public String paymentInfo_TimeOut(@PathVariable("id") Integer id){
+        //        String result = paymentHystrixService.paymentInfo_TimeOut(id);
+        //        return result;
+        //    }
+        
+            @GetMapping("/consumer/payment/hystrix/timeout/{id}")
+        //    @HystrixCommand(fallbackMethod = "paymentTimeOutFallbackMethod",commandProperties = {
+        //            @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds",value = "1500")  //1.5秒钟以内就是正常的业务逻辑
+        //    })
+            @HystrixCommand
+            public String paymentInfo_TimeOut(@PathVariable("id") Integer id){
+                int age = 10/0;
+                String result = paymentHystrixService.paymentInfo_TimeOut(id);
+                return result;
+            }
+        
+            //兜底方法
+            public String paymentTimeOutFallbackMethod(@PathVariable("id") Integer id){
+                return "我是消费者80，对付支付系统繁忙请10秒钟后再试或者自己运行出错请检查自己,(┬＿┬)";
+            }
+        
+            //下面是全局fallback方法
+            public String payment_Global_FallbackMethod(){
+                return "Global异常处理信息，请稍后再试,(┬＿┬)";
+            }
+        }
+        ```
+
     - 和业务逻辑混一起？？？混乱
-        服务降级，客户端去调用服务端，碰上服务端宕机或关闭
-        本次案例服务降级处理是在客户端80实现完成的，与服务端8001没有关系，只需要为Feign客户端定义的接口添加一个服务降级处理的实现类即可实现解耦
-        未来我们要面对的异常
-          运行
-          超时
-          宕机
-        再看我们的业务类PaymentController
-        修改cloud-consumer-feign-hystrix-order80
-        根据cloud-consumer-feign-hystrix-order80已经有的PaymentHystrixService接口，重新新建一个类（PaymentFallbackService）实现该接口，统一为接口里面的方法进行异常处理
-        PaymentFallbackService类实现PaymentFeignClientService接口
-        YML
-        PaymentFeignClientService接口
-        测试
-          单个eureka先启动7001
-           PaymentHystrixMain8001启动
-          正常访问测试
-          故意关闭微服务8001
-          客户端自己调用提升
-            此时服务端provider已经down了，但是我们做了服务降级处理，让客户端在服务端不可用时也会获得提示信息而不会挂起耗死服务器
+
+      - 服务降级，客户端去调用服务端，碰上服务端宕机或关闭
+
+      - 本次案例服务降级处理是在客户端80实现完成的，与服务端8001没有关系，只需要为Feign客户端定义的接口添加一个服务降级处理的实现类即可实现解耦
+
+      - 未来我们要面对的异常
+
+        - 运行    
+        - 超时
+        - 宕机
+
+      - 再看我们的业务类PaymentController
+
+        ![image-20201021155057901](assets/image-20201021155057901.png)
+
+      - 修改cloud-consumer-feign-hystrix-order80
+
+      - 根据cloud-consumer-feign-hystrix-order80已经有的PaymentHystrixService接口，重新新建一个类（PaymentFallbackService）实现该接口，统一为接口里面的方法进行异常处理
+
+      - PaymentFallbackService类实现PaymentFeignClientService接口
+
+      - YML
+
+      - PaymentFeignClientService接口
+
+      -  测试
+
+        - 单个eureka先启动7001    
+        -  PaymentHystrixMain8001启动
+        - 正常访问测试:http://localhost/consumer/payment/hystrix/ok/31
+        - 故意关闭微服务8001
+        - 客户端自己调用提升
+                此时服务端provider已经down了，但是我们做了服务降级处理，让客户端在服务端不可用时也会获得提示信息而不会挂起耗死服务器
 
 - 服务熔断
 
