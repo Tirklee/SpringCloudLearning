@@ -7264,7 +7264,7 @@ https://learn.hashicorp.com/consul/getting-started/install.html
         - bootstrap
 
           ```yml
-           namespace: dev
+           namespace: dev #此处应该是namespace的唯一标识
           ```
 
         - application
