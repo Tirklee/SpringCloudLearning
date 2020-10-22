@@ -7934,7 +7934,263 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
 ## 19.4流控规则
 
+- 基本介绍
+
+  ![image-20201023023240277](assets/image-20201023023240277-1603391568612.png)
+
+  - 进一步解释说明
+
+    ![image-20201023023358306](assets/image-20201023023358306-1603391647245.png)
+
+    ![image-20201023023507309](assets/image-20201023023507309-1603391715371.png)
+
+    
+
+- 流控模式
+
+  - 直接（默认）
+
+    - 直接->快速失败(系统默认)
+
+    - 配置及说明
+
+      ![image-20201023023730294](README.assets/image-20201023023730294-1603391858978.png)
+
+    - 测试
+
+      - 快速点击访问http://localhost:8401/testA
+
+      - 结果(Blocked by Sentinel (flow limiting))
+
+      - 思考？？？
+
+        直接调用默认报错信息，技术方面OK but，是否应该有我们自己的后续处理？
+          类似有一个fallback的兜底方法？
+
+  - 关联
+
+    - 是什么？
+
+      - 当关联的资源达到阈值时，就限流自己
+      - 当与A关联的资源B达到阈值后，就限流自己
+      - B惹事，A挂了
+
+    - 配置A
+
+      ![image-20201023024310516](README.assets/image-20201023024310516-1603392198876.png)
+
+    - postman模拟并发密集访问testB
+
+      ![image-20201023024436378](README.assets/image-20201023024436378-1603392286252.png)
+
+      - 访问testB成功
+
+        ![image-20201023025143835](README.assets/image-20201023025143835-1603392711331.png)
+
+      - postman里新建多线程集合组
+
+        ![image-20201023025351658](README.assets/image-20201023025351658-1603392839267.png)
+
+      - 将访问地址添加进新线程组
+
+        ![image-20201023025432029](README.assets/image-20201023025432029-1603392880473.png)
+
+      - Run
+
+        大批量线程高并发访问B，导致A失效了
+
+    - 运行后发现testA挂了
+
+      - 点击访问http://localhost:8401/testA
+      - 结果：Blocked by Sentinel (flow limiting)
+
+  - 链路
+
+    多个请求调用了同一个微服务
+
+- 流控效果
+
+  - 直接->快速失败（默认的流控处理）
+
+    - 直接失败，抛出异常（Blocked by Sentinel (flow limiting)）
+    - 源码(com.alibaba.csp.sentinel.slots.block.flow.controller.DefaultController)
+
+  - 预热
+
+    - 说明（公式：阈值除以coldFactor（默认值为3），经过预热时长后才会达到阈值）
+
+    - 官网
+
+      ![image-20201023030840246](README.assets/image-20201023030840246-1603393728658.png)
+
+      - 默认coldFactor为3，即请求QPS从threshold/3开始，经预热时长逐渐升至设定的QPS阈值。
+      - 限流 冷启动：https://github.com/alibaba/Sentinel/wiki/%E9%99%90%E6%B5%81---%E5%86%B7%E5%90%AF%E5%8A%A8
+
+    - 源码
+
+      com.alibaba.csp.sentinel.slots.block.flow.controller.WarmUpController
+
+      ![image-20201023031024920](README.assets/image-20201023031024920-1603393833115.png)
+
+    - Warmup配置
+
+      ![image-20201023031120798](README.assets/image-20201023031120798-1603393890308.png)
+
+    - 多次点击http://localhost:8401/testB
+
+      刚开始不行，后续慢慢OK
+
+    - 应用场景
+
+      ![image-20201023031359543](README.assets/image-20201023031359543-1603394047975.png)
+
+  - 排队等待
+
+    ![image-20201023031447259](README.assets/image-20201023031447259-1603394096212.png)
+
+    - 匀速排队，阈值必须设置为QPS
+
+    - 官网
+
+      ![image-20201023031615488](README.assets/image-20201023031615488-1603394184098.png)
+
+      ![image-20201023031648175](README.assets/image-20201023031648175-1603394217593.png)
+
+    - 源码
+
+      com.alibaba.csp.sentinel.slots.block.flow.controller.RateLimiterController
+
+    - 测试
+
+      ![image-20201023031731129](README.assets/image-20201023031731129.png)
+
 ## 19.5降级规则
+
+- 官网
+
+- 基本介绍
+
+  ![image-20201023032210252](README.assets/image-20201023032210252-1603394538315.png)
+
+  ![image-20201023032249053](README.assets/image-20201023032249053-1603394577323.png)
+
+  - 进一步说明
+
+    ![image-20201023032428710](assets/image-20201023032428710.png)
+
+  - Sentinel的断路器是没有半开状态的
+
+    - 半开的状态系统自动去检测是否请求有异常，没有异常就关闭断路器恢复使用，有异常则继续打开断路器不可用。具体可以参考Hystrix
+
+    - 复习Hystrix
+
+      ![image-20201023032600150](README.assets/image-20201023032600150-1603394808989.png)
+
+      ![image-20201023032639339](README.assets/image-20201023032639339-1603394807260.png)
+
+- 降级策略实战
+
+  - RT
+
+    - 是什么
+
+      ![image-20201023032840232](README.assets/image-20201023032840232-1603394929283.png)
+
+      ![image-20201023032908016](README.assets/image-20201023032908016-1603394956089.png)
+
+    - 测试
+
+      - 代码
+
+        ```java
+        	@GetMapping("/testD")
+            public String testD()
+            {
+                try { TimeUnit.SECONDS.sleep(1); } catch (InterruptedException e) { e.printStackTrace(); }
+                log.info("testD 测试RT");
+        
+                return "------testD";
+            }
+        ```
+
+      - 配置
+
+        ![image-20201023033253205](README.assets/image-20201023033253205-1603395182361.png)
+
+      - jmeter压测
+
+      - 结论
+
+        ![image-20201023033407192](assets/image-20201023033407192-1603395301135.png)
+
+        ![image-20201023033443909](assets/image-20201023033443909-1603395293427.png)
+
+  - 异常比例
+
+    - 是什么
+
+      ![image-20201023034052897](README.assets/image-20201023034052897-1603395701970.png)
+
+      ![image-20201023034133653](README.assets/image-20201023034133653-1603395704067-1603395714058.png)
+
+    - 测试
+
+      - 代码
+
+        ```java
+        	@GetMapping("/testD")
+            public String testD()
+            {
+        
+                log.info("testD 测试RT");
+                int age = 10/0;
+                return "------testD";
+            }
+        ```
+
+      - 配置
+
+        ![image-20201023034355549](README.assets/image-20201023034355549-1603395845059.png)
+
+      - jmeter
+
+        ![image-20201023034548831](README.assets/image-20201023034548831-1603395958008.png)
+
+      - 结论
+
+        ![image-20201023034711218](README.assets/image-20201023034711218-1603396039895.png)
+
+  - 异常数
+
+    - 是什么
+
+      ![image-20201023034924662](README.assets/image-20201023034924662-1603396173622.png)
+
+      ![image-20201023034946088](README.assets/image-20201023034946088-1603396194415.png)
+
+    - 异常数是按照分钟统计的
+
+    - 测试
+
+      - 代码
+
+        ```java
+        @GetMapping("/testE")
+        public String testE()
+        {
+            log.info("testE 测试异常数");
+            int age = 10/0;
+            return "------testE 测试异常数";
+        }
+        ```
+
+      - 配置
+
+        http://localhost:8401/testE
+
+        ![image-20201023035304670](README.assets/image-20201023035304670-1603396394248.png)
+
+      - jmeter
 
 ## 19.6热点key限流
 
@@ -7947,3 +8203,4 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 ## 19.10规则持久化
 
 # 20.SpringCloud Alibaba Seata处理分布式事务
+
