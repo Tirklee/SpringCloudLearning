@@ -7699,4 +7699,251 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
 # 19.SpringCloud Alibaba Sentinel实现熔断与限流
 
+## 19.1Sentinel
+
+- 官网
+
+  - https://github.com/alibaba/Sentinel
+  - 中文:https://github.com/alibaba/Sentinel/wiki/%E4%BB%8B%E7%BB%8D
+
+- 是什么
+
+  ![image-20201023015248011](README.assets/image-20201023015248011-1603389176145.png)
+
+  一句话解释，之前我们讲解过的Hystrix
+
+- 去哪下
+
+  https://github.com/alibaba/Sentinel/releases
+
+  ![image-20201023015337819](README.assets/image-20201023015337819-1603389225068.png)
+
+- 能干嘛
+
+  ![image-20201023015404684](assets/image-20201023015404684.png)
+
+- 怎么玩
+
+  - https://spring-cloud-alibaba-group.github.io/github-pages/greenwich/spring-cloud-alibaba.html#_spring_cloud_alibaba_sentinel
+  - 服务使用中的各种问题
+    - 服务雪崩
+    - 服务降级
+    - 服务熔断
+    - 服务限流
+
+## 19.2安装Sentinel控制台
+
+- sentinel组件由2部分组成
+
+  ![image-20201023015823290](README.assets/image-20201023015823290-1603389511842.png)
+
+  - 后台
+  - 前台8080
+
+- 安装步骤
+
+  - 下载
+    - https://github.com/alibaba/Sentinel/releases
+    - 下载到本地sentinel-dashboard-1.7.0.jar
+  - 运行命令
+    - 前提
+      - java8环境OK
+      - 8080端口不能被占用
+    - 命令(java -jar sentinel-dashboard-1.7.0.jar )
+  - 访问sentinel管理界面
+    - http://localhost:8080
+    - 登录账号密码均为sentinel
+
+## 19.3初始化演示工程
+
+- 启动Nacos8848成功http://localhost:8848/nacos/#/login
+
+- Module
+
+  - cloudalibaba-sentinel-service8401
+
+  - POM
+
+    ```xml
+    <?xml version="1.0" encoding="UTF-8"?>
+    <project xmlns="http://maven.apache.org/POM/4.0.0"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+        <parent>
+            <artifactId>cloud2020</artifactId>
+            <groupId>com.xiyue.cloud</groupId>
+            <version>1.0-SNAPSHOT</version>
+        </parent>
+        <modelVersion>4.0.0</modelVersion>
+    
+        <artifactId>cloudalibaba-sentinel-service8401</artifactId>
+        <dependencies>
+            <dependency>
+                <groupId>com.xiyue.cloud</groupId>
+                <artifactId>cloud-api-commons</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+    
+            <dependency>
+                <groupId>com.alibaba.cloud</groupId>
+                <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+            </dependency>
+    
+            <dependency>
+                <groupId>com.alibaba.csp</groupId>
+                <artifactId>sentinel-datasource-nacos</artifactId>
+            </dependency>
+    
+            <dependency>
+                <groupId>com.alibaba.cloud</groupId>
+                <artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
+            </dependency>
+    
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-openfeign</artifactId>
+            </dependency>
+    
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-web</artifactId>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-actuator</artifactId>
+            </dependency>
+    
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-devtools</artifactId>
+                <scope>runtime</scope>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>cn.hutool</groupId>
+                <artifactId>hutool-all</artifactId>
+                <version>4.6.3</version>
+            </dependency>
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-test</artifactId>
+                <scope>test</scope>
+            </dependency>
+    
+        </dependencies>
+    
+    </project>
+    ```
+
+  - YML（application.yml）
+
+    ```yml
+    server:
+      port: 8401
+    
+    spring:
+      application:
+        name: cloudalibaba-sentinel-service
+      cloud:
+        nacos:
+          discovery:
+            server-addr: localhost:8848
+        sentinel:
+          transport:
+            dashboard: localhost:8080
+            port: 8719  #默认8719，假如被占用了会自动从8719开始依次+1扫描。直至找到未被占用的端口
+    
+    management:
+      endpoints:
+        web:
+          exposure:
+            include: '*'
+    ```
+
+  - 主启动
+
+    ```java
+    package com.xiyue.cloud;
+    
+    import org.springframework.boot.SpringApplication;
+    import org.springframework.boot.autoconfigure.SpringBootApplication;
+    import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+    
+    
+    @EnableDiscoveryClient
+    @SpringBootApplication
+    public class MainApp8401
+    {
+        public static void main(String[] args) {
+            SpringApplication.run(MainApp8401.class, args);
+        }
+    }
+    ```
+
+  - 业务类FlowLimitController
+
+    ```java
+    package com.xiyue.cloud.controller;
+    
+    import org.springframework.web.bind.annotation.GetMapping;
+    import org.springframework.web.bind.annotation.RestController;
+    
+    @RestController
+    public class FlowLimitController
+    {
+        @GetMapping("/testA")
+        public String testA() {
+            return "------testA";
+        }
+    
+        @GetMapping("/testB")
+        public String testB() {
+    
+            return "------testB";
+        }
+    }
+    ```
+
+- 启动Sentinel8080（java -jar sentinel-dashboard-1.7.0）
+
+- 启动微服务8401
+
+- 启动8401微服务后查看sentienl控制台
+
+  - 空空如也，啥都没有
+
+  - Sentinel采用的懒加载说明
+
+    - 执行一次访问即可
+
+      - http://localhost:8401/testA
+      - http://localhost:8401/testB
+
+    - 效果
+
+      ![image-20201023022653903](assets/image-20201023022653903-1603391222580.png)
+
+  - 结论
+
+    sentinel8080正在监控微服务8401
+
+## 19.4流控规则
+
+## 19.5降级规则
+
+## 19.6热点key限流
+
+## 19.7系统规则
+
+## 19.8@SentinelResource
+
+## 19.9服务熔断功能
+
+## 19.10规则持久化
+
 # 20.SpringCloud Alibaba Seata处理分布式事务
