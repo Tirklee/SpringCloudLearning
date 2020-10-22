@@ -8,10 +8,10 @@ spring:
     config:
       server:
         git:
-          uri: https://github.com/Tirklee/SpringCloudLearning.git
+          uri: https://github.com/Tirklee/sprincloud-config.git
           search-paths:
-            - SpringCloudLearning/config
-      label: master
+            - sprincloud-config
+      label: main
 eureka:
   client:
     service-url:

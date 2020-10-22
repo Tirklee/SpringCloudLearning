@@ -4747,6 +4747,7 @@ https://learn.hashicorp.com/consul/getting-started/install.html
   ```yml
   server:
     port: 3344
+  
   spring:
     application:
       name: cloud-config-center
@@ -4754,10 +4755,10 @@ https://learn.hashicorp.com/consul/getting-started/install.html
       config:
         server:
           git:
-            uri:  git@github.com:Tirklee/SpringCloudLearning.git
+            uri: https://github.com/Tirklee/sprincloud-config.git
             search-paths:
-              - SpringCloudLearning/config
-        label: master
+              - sprincloud-config
+        label: main
   eureka:
     client:
       service-url:
@@ -4789,9 +4790,14 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 - 测试通过Config微服务是否可以从Github上获取配置内容
 
   - 启动微服务3344
-  - http://config-3344.com:3344/master/config-dev.yml
+
+  - http://config-3344.com:3344/main/config-dev.yml
+
+    ![image-20201022134241246](assets/image-20201022134241246.png)
 
 - 配置读取规则
+
+  
 
 - 成功实现了用SpringCloud Config 通过GitHub获取配置信息
 
