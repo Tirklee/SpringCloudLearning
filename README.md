@@ -4797,13 +4797,234 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
 - 配置读取规则
 
-  
+  - 官网
+
+    ![image-20201022134458276](assets/image-20201022134458276.png)
+
+  - /{label}/{application}-{profile}.yml（最推荐使用这种方式）
+
+    - master分支
+
+      http://config-3344.com:3344/main/config-dev.yml
+      http://config-3344.com:3344/main/config-test.yml
+      http://config-3344.com:3344/main/config-prod.yml
+
+    - dev分支
+
+      http://config-3344.com:3344/dev/config-dev.yml
+      http://config-3344.com:3344/dev/config-test.yml
+      http://config-3344.com:3344/dev/config-prod.yml
+
+  - /{application}-{profile}.yml
+
+    http://config-3344.com:3344/config-dev.yml
+    http://config-3344.com:3344/config-test.yml
+    http://config-3344.com:3344/config-prod.yml
+    http://config-3344.com:3344/config-xxxx.yml(不存在的配置)
+
+  - /{application}-{profile}[/{label}]
+
+    http://config-3344.com:3344/config/dev/main
+    http://config-3344.com:3344/config/test/main
+    http://config-3344.com:3344/config/prod/main
+
+  - 重要配置细节总结
+
+    ![image-20201022135357662](assets/image-20201022135357662.png)
 
 - 成功实现了用SpringCloud Config 通过GitHub获取配置信息
 
 ## 13.3Config客户端配置与测试
 
+- 新建cloud-config-client-3355
+
+- POM
+
+- bootstap.yml
+
+  - 是什么
+
+    ![image-20201022135904907](assets/image-20201022135904907.png)
+
+  - 内容
+
+    ```yml
+    server:
+      port: 3355
+    
+    spring:
+      application:
+        name: config-client
+      cloud:
+        config:
+          label: master
+          name: config
+          profile: dev
+          uri: http://localhost:3344
+    eureka:
+      client:
+        service-url:
+          defaultZone: http://eureka7001.com:7001/eureka
+    ```
+
+    说明
+
+    ![image-20201022141621034](assets/image-20201022141621034.png)
+
+- 修改config-dev.yml配置并提交到GitHub中，比如加个变量age或者版本号version
+
+- 主启动（类ConfigClientMain3355）
+
+  ```java
+  package com.xiyue.cloud;
+  
+  import org.springframework.boot.SpringApplication;
+  import org.springframework.boot.autoconfigure.SpringBootApplication;
+  
+  @SpringBootApplication
+  public class ConfigClientMain3355 {
+      public static void main(String[] args) {
+          SpringApplication.run( ConfigClientMain3355.class,args);
+      }
+  }
+  ```
+
+- 业务类
+
+  ```java
+  package com.xiyue.cloud.controller;
+  
+  import org.springframework.beans.factory.annotation.Value;
+  import org.springframework.web.bind.annotation.GetMapping;
+  import org.springframework.web.bind.annotation.RestController;
+  
+  @RestController
+  public class ConfigClientController {
+  
+      @Value("${config.info}")
+      private String configInfo;
+  
+      @GetMapping("/configInfo")
+      public String getConfigInfo(){
+          return configInfo;
+      }
+  }
+  ```
+
+- 测试
+
+  - 启动Config配置中心3344微服务并自测
+      http://config-3344.com:3344/main/config-dev.yml
+      http://config-3344.com:3344/main/config-test.yml
+  - 启动3355作为Client准备访问
+      http://localhost:3355/configInfo
+
+- 成功实现了客户端3355访问SpringCloud Config3344通过GitHub获取配置信息
+
+- 问题随时而来，分布式配置的动态刷新
+
+  - Linux运维修改GitHub上的配置文件内容做调整
+  - 刷新3344，发现ConfigServer配置中心立刻响应
+  - 刷新3355，发现ConfigServer客户端没有任何响应
+  - 3355没有变化除非自己重启或者重新加载
+  - 难道每次运维修改配置文件，客户端都需要重启？？噩梦
+
 ## 13.4Config客户端之动态刷新
+
+- 避免每次更新配置都要重启客户端微服务3355
+
+- 动态刷新
+
+  - 步骤
+
+    - 修改3355模块
+
+    - POM引入actuator监控
+
+      ```xml
+      <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-actuator</artifactId>
+      </dependency>
+      ```
+
+    - 修改YML，暴露监控端口
+
+      ```yml
+      server:
+        port: 3355
+      
+      spring:
+        application:
+          name: config-client
+        cloud:
+          config:
+            label: main
+            name: config
+            profile: dev
+            uri: http://config-3344.com:3344
+      eureka:
+        client:
+          service-url:
+            defaultZone: http://eureka7001.com:7001/eureka
+      
+      
+      management:
+        endpoints:
+          web:
+            exposure:
+              include: "*"
+      ```
+
+    - @RefreshScope业务类Controller修改
+
+      ```java
+      package com.xiyue.cloud.controller;
+      
+      import org.springframework.beans.factory.annotation.Value;
+      import org.springframework.cloud.context.config.annotation.RefreshScope;
+      import org.springframework.web.bind.annotation.GetMapping;
+      import org.springframework.web.bind.annotation.RestController;
+      
+      @RestController
+      @RefreshScope
+      public class ConfigClientController {
+      
+          @Value("${config.info}")
+          private String configInfo;
+      
+          @GetMapping("/configInfo")
+          public String getConfigInfo(){
+              return configInfo;
+          }
+      }
+      ```
+
+    - 此时修改github---> 3344 ---> 3355
+
+      - http://localhost:3355/configInfo
+      - 3355改变了没有？？？
+        - 没有改变，(┬＿┬)
+
+    - How
+
+      - 需要运维人员发送Post请求刷新3355
+
+        - 必须是Post请求
+
+        - curl -X POST "http://localhost:3355/actuator/refresh"
+
+    - 再次
+
+      - http://localhost:3355/configInfo->OK
+      - 成功实现了客户端3355刷新到最新配置内容->避免了服务的重启
+
+- 想想还有什么问题？
+
+  - 假如有多个微服务客户端3355/3366/3377。。。。
+  - 每个微服务都要执行一次post请求，手动刷新？
+  - 可否广播，一次通知，处处生效？
+  - 我们想大范围的自动刷新，求方法
 
 # 14.SpringCloud Bus 消息总线
 
