@@ -6551,16 +6551,17 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
 - SpringCloud alibaba学习资料获取
 
-  官网
+  - 官网
 
   ![image-20201022200805605](assets/image-20201022200805605.png)
 
    https://spring.io/projects/spring-cloud-alibaba#overview
-  英文
-    https://github.com/alibaba/spring-cloud-alibaba
-    https://spring-cloud-alibaba-group.github.io/github-pages/greenwich/spring-cloud-alibaba.html
-  中文
-    https://github.com/alibaba/spring-cloud-alibaba/blob/master/README-zh.md
+
+  - 英文
+      https://github.com/alibaba/spring-cloud-alibaba
+      https://spring-cloud-alibaba-group.github.io/github-pages/greenwich/spring-cloud-alibaba.html
+  - 中文
+      https://github.com/alibaba/spring-cloud-alibaba/blob/master/README-zh.md
 
 # 18.SpringCloud Alibaba Nacos服务注册和配置中心
 
