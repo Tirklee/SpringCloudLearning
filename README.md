@@ -6124,13 +6124,36 @@ https://learn.hashicorp.com/consul/getting-started/install.html
   - 8802/8803实现了轮询分组，每次只有一个消费者 8801模块的发的消息只能被8802或8803其中一个接收到，这样避免了重复消费
 
   - 8802/8803都变成相同组，group两个相同
-      group: atguiguA
-      8802修改YML
-      8803修改YML
-      结论
-        同一个组的多个微服务实例，每次只会有一个拿到
+
+    - group: atguiguA
+
+    - 8802修改YML
+
+      ```yml
+      group:  atguiguA
+      ```
+
+    - 8803修改YML
+
+      ```yml
+      group:  atguiguA
+      ```
+
+    - 结论:同一个组的多个微服务实例，每次只会有一个拿到
 
 - 持久化
+
+  - 通过上述，解决了重复消费问题，再看看持久化
+
+  - 停止8802/8803并去除掉8802的分组group:atguiguA
+
+    8803的分组group:atguiguA没有去掉
+
+  - 8801先发送4条信息到rabbitmq
+
+  - 先启动8802，无分组属性配置，后台没有打出来消息
+
+  - 先启动8803，有分组属性配置，后台打出来了MQ上的消息
 
 # 16.SpringCloud Sleuth分布式请求链路追踪
 
