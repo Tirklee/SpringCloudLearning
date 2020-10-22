@@ -4622,6 +4622,183 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
 # 13.config分布式配置中心
 
+## 13.1概述
+
+- 分布式系统面临的配置问题
+
+  ![image-20201022113204260](assets/image-20201022113204260.png)
+
+  
+
+- 是什么
+
+  ![image-20201022113305196](assets/image-20201022113305196.png)
+
+  ![image-20201022113348525](assets/image-20201022113348525.png)
+
+- 能干嘛
+
+  - 集中管理配置文件
+  - 不同环境不同配置，动态化的配置更新，分环境部署比如dev/test/prod/beta/release
+  - 运行期间动态调整配置，不再需要在每个服务部署的机器上编写配置文件，服务会向配置中心统一拉取配置自己的信息
+  - 当配置发生变动时，服务不需要重启即可感知到配置的变化并应用新的配置
+  - 将配置信息以REST接口的形式暴露（post、curl访问刷新均可....）
+
+- 与Github整合配置
+
+  由于SpringCloud Config默认使用Git来存储配置文件（也有其它方式，比如支持svn和本地文件，但最推荐的还是Git，而且使用的是http/https访问的形式）
+
+- 官网
+
+  ![image-20201022113659544](assets/image-20201022113659544.png)
+
+  https://cloud.spring.io/spring-cloud-static/spring-cloud-config/2.2.1.RELEASE/reference/html/
+
+## 13.2Config服务端配置与测试
+
+- 用你自己的账号在Github上新建一个名为sprincloud-config的新Repository
+
+- 由上一步获得刚新建的git地址(写你自己的仓库地址)
+
+- 本地硬盘上新建git仓库并clone
+
+  ![image-20201022114320028](assets/image-20201022114320028.png)
+
+  - 本地地址：D:\44\SpringCloud2020
+  - git命令（ git clone  xxx）
+
+- 此时在本地D盘符下D:\44\SpringCloud2020\springcloud-config
+
+  ![image-20201022114517147](assets/image-20201022114517147.png)
+
+  - 表示多个环境的配置文件
+  - 保存格式必须为UTF-8
+  - 如果需要修改，此处模拟运维人员操作git和github
+    - git add
+    - git commit -m "init yml"
+    - git push origin master
+
+- 新建Module模块cloud-config-center-3344它既为Cloud的配置中心模块cloudConfig Center
+
+- POM
+
+  ```xml
+  <?xml version="1.0" encoding="UTF-8"?>
+  <project xmlns="http://maven.apache.org/POM/4.0.0"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+      <parent>
+          <artifactId>cloud2020</artifactId>
+          <groupId>com.xiyue.cloud</groupId>
+          <version>1.0-SNAPSHOT</version>
+      </parent>
+      <modelVersion>4.0.0</modelVersion>
+  
+      <artifactId>cloud-config-center-3344</artifactId>
+  
+      <dependencies>
+          <dependency>
+              <groupId>org.springframework.cloud</groupId>
+              <artifactId>spring-cloud-config-server</artifactId>
+          </dependency>
+          <dependency>
+              <groupId>org.springframework.cloud</groupId>
+              <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+          </dependency>
+          <dependency>
+              <groupId>com.xiyue.cloud</groupId>
+              <artifactId>cloud-api-commons</artifactId>
+              <version>${project.version}</version>
+          </dependency>
+          <dependency>
+              <groupId>org.springframework.boot</groupId>
+              <artifactId>spring-boot-starter-web</artifactId>
+          </dependency>
+  
+          <dependency>
+              <groupId>org.springframework.boot</groupId>
+              <artifactId>spring-boot-starter-actuator</artifactId>
+          </dependency>
+  
+          <dependency>
+              <groupId>org.springframework.boot</groupId>
+              <artifactId>spring-boot-devtools</artifactId>
+              <scope>runtime</scope>
+              <optional>true</optional>
+          </dependency>
+  
+          <dependency>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+              <optional>true</optional>
+          </dependency>
+          <dependency>
+              <groupId>org.springframework.boot</groupId>
+              <artifactId>spring-boot-starter-test</artifactId>
+              <scope>test</scope>
+          </dependency>
+      </dependencies>
+  
+  </project>
+  ```
+
+- YML
+
+  ```yml
+  server:
+    port: 3344
+  spring:
+    application:
+      name: cloud-config-center
+    cloud:
+      config:
+        server:
+          git:
+            uri:  git@github.com:Tirklee/SpringCloudLearning.git
+            search-paths:
+              - SpringCloudLearning/config
+        label: master
+  eureka:
+    client:
+      service-url:
+        defaultZone:  http://localhost:7001/eureka
+  ```
+
+- 主启动类（@EnableConfigServer）
+
+  ```java
+  package com.xiyue.cloud;
+  
+  import org.springframework.boot.SpringApplication;
+  import org.springframework.boot.autoconfigure.SpringBootApplication;
+  import org.springframework.cloud.config.server.EnableConfigServer;
+  
+  @SpringBootApplication
+  @EnableConfigServer
+  public class ConfigCenterMain3344 {
+  
+      public static void main(String[] args) {
+          SpringApplication.run(ConfigCenterMain3344.class,args);
+      }
+  
+  }
+  ```
+
+- windows下修改hosts文件，增加映射(127.0.0.1 config-3344.com)
+
+- 测试通过Config微服务是否可以从Github上获取配置内容
+
+  - 启动微服务3344
+  - http://config-3344.com:3344/master/config-dev.yml
+
+- 配置读取规则
+
+- 成功实现了用SpringCloud Config 通过GitHub获取配置信息
+
+## 13.3Config客户端配置与测试
+
+## 13.4Config客户端之动态刷新
+
 # 14.SpringCloud Bus 消息总线
 
 # 15.SpringCloud Stream消息驱动
