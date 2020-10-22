@@ -4882,6 +4882,7 @@ https://learn.hashicorp.com/consul/getting-started/install.html
   import org.springframework.boot.autoconfigure.SpringBootApplication;
   
   @SpringBootApplication
+  @EnableEurekaClient
   public class ConfigClientMain3355 {
       public static void main(String[] args) {
           SpringApplication.run( ConfigClientMain3355.class,args);
@@ -5027,6 +5028,429 @@ https://learn.hashicorp.com/consul/getting-started/install.html
   - 我们想大范围的自动刷新，求方法
 
 # 14.SpringCloud Bus 消息总线
+
+## 14.1概述
+
+- 上一讲解的加深和扩充，一言以蔽之
+
+  - 分布式自动刷新配置功能
+  - Spring Cloud Bus配合Spring Cloud Config使用可以实现配置的动态刷新
+
+- 是什么
+
+  ![image-20201022150336523](assets/image-20201022150336523.png)
+
+  Bus支持两种消息代理：RabbitMQ和Kafka
+
+- 能干嘛
+
+  ![image-20201022150425053](assets/image-20201022150425053.png)
+
+- 为何被称为总线
+
+  ![image-20201022150454333](README.assets/image-20201022150454333.png)
+
+### 14.2RabbitMQ环境配置
+
+- 安装Erlang，下载地址：
+
+  - http://erlang.org/download/otp_win64_21.3.exe
+
+  - 步骤
+
+    ![image-20201022150858933](assets/image-20201022150858933.png)
+
+    ![image-20201022150915584](assets/image-20201022150915584.png)
+
+    ![image-20201022150941491](assets/image-20201022150941491.png)
+
+- 安装RabbitMQ，下载地址
+
+  - https://dl.bintray.com/rabbitmq/all/rabbitmq-server/3.7.14/rabbitmq-server-3.7.14.exe
+
+  - 步骤
+
+    ![image-20201022151003146](assets/image-20201022151003146.png)
+
+- 进入RabbitMQ安装目录下的sbin目录
+    如例我自己本机
+    D:\scmq\rabbitmq_server-3.7.14\sbin
+
+  ![image-20201022151026176](assets/image-20201022151026176.png)
+
+- 输入以下命令启动管理功能
+
+  rabbitmq-plugins enable rabbitmq_management
+
+  ![image-20201022151106869](assets/image-20201022151106869.png)
+
+  可视化插件
+
+  ![image-20201022151124833](assets/image-20201022151124833.png)
+
+- 访问地址查看是否安装成功 http://localhost:15672/
+
+- 输入账号密码并登录: guest guest
+
+## 14.3SpringCloud Bus动态刷新全局广播
+
+- 必须先具备良好的RabbitMQ环境先
+
+- 演示广播效果，增加复杂度，再以3355为模板再制作一个3366
+
+  - 新建cloud-config-client-3366
+
+  - POM
+
+    ```xml
+    <?xml version="1.0" encoding="UTF-8"?>
+    <project xmlns="http://maven.apache.org/POM/4.0.0"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+        <parent>
+            <artifactId>cloud2020</artifactId>
+            <groupId>com.xiyue.cloud</groupId>
+            <version>1.0-SNAPSHOT</version>
+        </parent>
+        <modelVersion>4.0.0</modelVersion>
+    
+        <artifactId>cloud-config-client-3366</artifactId>
+    
+        <dependencies>
+    
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-config</artifactId>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+            </dependency>
+            <dependency>
+                <groupId>com.xiyue.cloud</groupId>
+                <artifactId>cloud-api-commons</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-web</artifactId>
+            </dependency>
+    
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-actuator</artifactId>
+            </dependency>
+    
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-devtools</artifactId>
+                <scope>runtime</scope>
+                <optional>true</optional>
+            </dependency>
+    
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-test</artifactId>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </project>
+    ```
+
+  - YML(bootstrap.yml)
+
+    ```yml
+    server:
+      port: 3366
+    
+    spring:
+      application:
+        name: config-client
+      cloud:
+        config:
+          label: main
+          name: config
+          profile: dev
+          uri: http://config-3344.com:3344
+    eureka:
+      client:
+        service-url:
+          defaultZone: http://eureka7001.com:7001/eureka
+    
+    management:
+      endpoints:
+        web:
+          exposure:
+            include: "*"
+    ```
+
+    
+
+  - 主启动
+
+    ```java
+    package com.xiyue.cloud;
+    
+    import org.springframework.boot.SpringApplication;
+    import org.springframework.boot.autoconfigure.SpringBootApplication;
+    import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+    
+    @SpringBootApplication
+    @EnableEurekaClient
+    public class ConfigClientMain3366 {
+        public static void main(String[] args) {
+            SpringApplication.run( ConfigClientMain3366.class,args);
+        }
+    }
+    ```
+
+  - controller
+
+    ```java
+    package com.xiyue.cloud.controller;
+    
+    import org.springframework.beans.factory.annotation.Value;
+    import org.springframework.cloud.context.config.annotation.RefreshScope;
+    import org.springframework.web.bind.annotation.GetMapping;
+    import org.springframework.web.bind.annotation.RestController;
+    
+    @RestController
+    @RefreshScope
+    public class ConfigClientController {
+    
+        @Value("${server.port}")
+        private String serverPort;
+    
+        @Value("${config.info}")
+        private String configInfo;
+    
+    
+        @GetMapping("/configInfo")
+        public String getConfigInfo(){
+            return "serverPort:"+serverPort+"\t\n\n configInfo: "+configInfo;
+        }
+    
+    
+    }
+    ```
+
+- 设计思想
+
+  -  利用消息总线触发一个客户端/bus/refresh,而刷新所有客户端的配置
+
+    ![image-20201022153933482](assets/image-20201022153933482.png)
+
+    
+
+  -  利用消息总线触发一个服务端ConfigServer的/bus/refresh端点,而刷新所有客户端的配置（更加推荐）
+
+    ![image-20201022154040089](assets/image-20201022154040089.png)
+
+  - 图二的架构显然更加合适，图一不适合的原因如下
+
+    - 打破了微服务的职责单一性，因为微服务本身是业务模块，它本不应该承担配置刷新职责
+
+    - 破坏了微服务各节点的对等性
+
+    - 有一定的局限性。例如，微服务在迁移时，它的网络地址常常会发生变化，此时如果想要做到自动刷新，那就会增加更多的修改
+
+- 给cloud-config-center-3344配置中心服务端添加消息总线支持
+
+  - POM
+
+    ```xml
+    <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-bus-amqp</artifactId>
+    </dependency>
+    ```
+
+  - YML
+
+    ```yml
+    server:
+      port: 3344
+    
+    spring:
+      application:
+        name: cloud-config-center
+      cloud:
+        config:
+          server:
+            git:
+              uri: https://github.com/Tirklee/sprincloud-config.git
+              search-paths:
+                - sprincloud-config
+          label: main
+    eureka:
+      client:
+        service-url:
+          defaultZone: http://eureka7001.com:7001/eureka
+    
+    rabbitmq:
+      host: localhost
+      port: 5672
+      username: guest
+      password: guest
+    
+    management:
+      endpoints:
+        web:
+          exposure:
+            include: 'bus-refresh'
+    ```
+
+- 给cloud-config-center-3355客户端添加消息总线支持
+
+  - POM
+
+    ```xml
+    <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-bus-amqp</artifactId>
+    </dependency>
+    ```
+
+  - YML
+
+    ```yml
+    server:
+      port: 3355
+    
+    spring:
+      application:
+        name: config-client
+      cloud:
+        config:
+          label: main
+          name: config
+          profile: dev
+          uri: http://config-3344.com:3344
+    eureka:
+      client:
+        service-url:
+          defaultZone: http://eureka7001.com:7001/eureka
+    
+    
+    management:
+      endpoints:
+        web:
+          exposure:
+            include: "*"
+    
+    rabbitmq:
+      host: localhost
+      port: 5672
+      username: guest
+      password: guest
+    ```
+
+- 给cloud-config-center-3366客户端添加消息总线支持
+
+  - POM
+
+    ```xml
+    <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-bus-amqp</artifactId>
+    </dependency>
+    ```
+
+  - YML
+
+    ```yml
+    server:
+      port: 3366
+    
+    spring:
+      application:
+        name: config-client
+      cloud:
+        config:
+          label: main
+          name: config
+          profile: dev
+          uri: http://config-3344.com:3344
+    eureka:
+      client:
+        service-url:
+          defaultZone: http://eureka7001.com:7001/eureka
+    
+    management:
+      endpoints:
+        web:
+          exposure:
+            include: "*"
+    
+    rabbitmq:
+      host: localhost
+      port: 5672
+      username: guest
+      password: guest
+    ```
+
+    
+
+- 测试
+
+  - 运维工程师
+
+    - 修改Github上配置文件增加版本号
+
+    - 发送Post请求
+
+      - ![image-20201022155228413](assets/image-20201022155228413.png)
+
+      - curl -X POST "http://localhost:3344/actuator/bus-refresh"    
+      - 一次发送，处处生效
+
+  - 配置中心:http://config-3344.com/config-dev.yml
+
+  - 客户端
+
+    - http://localhost:3355/configInfo
+
+    - http://localhost:3366/configInfo
+
+    - 获取配置信息，发现都已经刷新了
+
+- 一次修改，广播通知，处处生效
+
+## 14.4SpringCloud Bus动态刷新定点通知
+
+- 不想全部通知，只想定点通知
+
+  - 只通知3355
+
+  - 不通知3366
+
+- 简单一句话
+
+  - 指定具体某一个实例生效而不是全部
+
+  - 公式：http://localhost:配置中心的端口号/actuator/bus-refresh/{destination}
+
+  - /bus/refresh请求不再发送到具体的服务实例上，而是发给config server并通过destination参数类指定需要更新配置的服务或实例
+
+- 案例
+
+  - 我们这里以刷新运行在3355端口上的config-client为例
+
+    - 只通知3355
+    - 不通知3366
+
+  - curl -X POST "http://localhost:3344/actuator/bus-refresh/config-client:3355"
+
+    ![image-20201022161351998](assets/image-20201022161351998.png)
+
+- 通知总结All
+
+  ![image-20201022161415328](assets/image-20201022161415328.png)
 
 # 15.SpringCloud Stream消息驱动
 
