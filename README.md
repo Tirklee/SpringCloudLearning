@@ -8194,6 +8194,89 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
 ## 19.6热点key限流
 
+- 基本介绍 是什么
+
+  ![image-20201023035828452](README.assets/image-20201023035828452-1603396715294.png)
+
+- 官网：https://github.com/alibaba/Sentinel/wiki/热点参数限流
+
+- 承上启下复习start
+
+  ![image-20201023040050219](README.assets/image-20201023040050219-1603396857365.png)
+
+  @SentinelResource
+
+- 代码
+
+  ```java
+  @GetMapping("/testHotKey")
+  @SentinelResource(value = "testHotKey",blockHandler = "deal_testHotKey")
+  public String testHotKey(@RequestParam(value = "p1",required = false) String p1,
+                           @RequestParam(value = "p2",required = false) String p2) {
+      //int age = 10/0;
+      return "------testHotKey";
+  }
+   
+  //兜底方法
+  public String deal_testHotKey (String p1, String p2, BlockException exception){
+      return "------deal_testHotKey,o(╥﹏╥)o";  
+  }
+  ```
+
+  com.alibaba.csp.sentinel.slots.block.BlockException
+
+- 配置 配置
+
+  ![image-20201023040441950](assets/image-20201023040441950-1603397091024.png)
+
+  - 1
+    - @SentinelResource(value = "testHotKey")
+    - 异常打到了前台用户界面看不到，不友好
+  - 2
+    - @SentinelResource(value = "testHotKey",blockHandler = "deal_testHotKey")
+    - 方法testHostKey里面第一个参数只要QPS超过每秒1次，马上降级处理
+    - 用了我们自己定义的
+
+- 测试
+
+  - error:http://localhost:8401/testHotKey?p1=abc
+  - error:http://localhost:8401/testHotKey?p1=abc&p2=33
+  - right:http://localhost:8401/testHotKey?p2=abc
+
+- 参数例外项
+
+  - 上述案例演示了第一个参数p1,当QPS超过1秒1次点击后马上被限流
+
+  - 特殊情况
+
+    - 普通:超过1秒钟一个后，达到阈值1后马上被限流
+    - 我们期望p1参数当它是某个特殊值时，它的限流值和平时不一样
+    - 特例:假如当p1的值等于5时，它的阈值可以达到200
+
+  - 配置
+
+    ![image-20201023041644229](README.assets/image-20201023041644229-1603397811303.png)
+
+    ![image-20201023041801550](README.assets/image-20201023041801550-1603397890878.png)
+
+  - 测试
+
+    - http://localhost:8401/testHotKey?p1=5
+    - http://localhost:8401/testHotKey?p1=3
+    - 当p1等于5的时候，阈值变为200
+    - 当p1不等于5的时候，阈值就是平常的1
+
+  - 前提条件
+
+    热点参数的注意点，参数必须是基本类型或者String
+
+- 其他
+
+  手贱添加异常看看....
+    后面讲
+
+  ![image-20201023041957578](assets/image-20201023041957578-1603398010726.png)
+
 ## 19.7系统规则
 
 ## 19.8@SentinelResource
