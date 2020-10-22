@@ -7247,7 +7247,27 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
     - Namespace方案
 
-      
+      - 新建dev/test的Namespace
+
+        ![image-20201023002542378](README.assets/image-20201023002542378-1603383950243.png)
+
+      - 回到服务管理-服务列表查看
+
+        ![image-20201023002604311](README.assets/image-20201023002604311-1603383971295.png)
+
+      - 按照域名配置填写
+
+        ![image-20201023002629130](README.assets/image-20201023002629130-1603383997654.png)
+
+      - YML
+
+        - bootstrap
+
+          ```yml
+           namespace: dev
+          ```
+
+        - application
 
 ## 18.5Nacos集群和持久化配置（重要）
 
