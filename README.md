@@ -36,16 +36,16 @@
 
 **通过上面官网发现，Boot官方强烈建议你升级到2.X以上版本**
 
-![image-20201020085107723](assets/image-20201020085107723.png)
+![image-20201020085107723](README.assets/image-20201020085107723.png)
 
 **官网看Boot版本** 
    springboot(截至2019.10.26)
 
-![image-20201020085543204](assets/image-20201020085543204.png)
+![image-20201020085543204](README.assets/image-20201020085543204.png)
 
   springboot(截至2020.2.15)
 
-![image-20201020085623911](assets/image-20201020085623911.png)
+![image-20201020085623911](README.assets/image-20201020085623911.png)
 
 ## 2.3SpringCloud版本选择
 
@@ -59,17 +59,17 @@ git源码地址
 
   **Cloud命名规则**
 
-![image-20201020085851491](assets/image-20201020085851491.png)
+![image-20201020085851491](README.assets/image-20201020085851491.png)
 
 ![image-20201020085922018](assets/image-20201020085922018.png)
 
 **SpringCloud的多版本**
 
-![image-20201020090142426](assets/image-20201020090142426.png)
+![image-20201020090142426](README.assets/image-20201020090142426.png)
 
 ###   **springcloud(截至2019.10.26)**
 
-![image-20201020090521924](assets/image-20201020090521924.png)
+![image-20201020090521924](README.assets/image-20201020090521924.png)
 
 ###   **springboot(截至2020.2.15)**
 
@@ -81,11 +81,11 @@ git源码地址
 
 https://spring.io/projects/spring-cloud#overview
 
-![image-20201020090737816](assets/image-20201020090737816.png)
+![image-20201020090737816](README.assets/image-20201020090737816.png)
 
 依赖
 
-![image-20201020090823810](assets/image-20201020090823810.png)
+![image-20201020090823810](README.assets/image-20201020090823810.png)
 
 更详细的版本对应查看方法
 
@@ -93,7 +93,7 @@ https://start.spring.io/actuator/info
 
 结果
 
-![image-20201020091057551](assets/image-20201020091057551.png)
+![image-20201020091057551](README.assets/image-20201020091057551.png)
 
 查看json串返回结果
 
@@ -113,21 +113,21 @@ https://start.spring.io/actuator/info
 - **boot版已经到2.2.4为最新，为什么选2.2.2？**
     **只用boot，直接用最新**
 
-![image-20201020091732681](assets/image-20201020091732681.png)
+![image-20201020091732681](README.assets/image-20201020091732681.png)
 
 **同时用boot和cloud，需要照顾cloud，由cloud决定boot版本 结果**
 
-![image-20201020091957982](assets/image-20201020091957982.png)
+![image-20201020091957982](README.assets/image-20201020091957982.png)
 
 **SpringCloud和SpringBoot版本对应关系**
 
-![image-20201020092035895](assets/image-20201020092035895.png)
+![image-20201020092035895](README.assets/image-20201020092035895.png)
 
 -  **2.X版本常用的组件pom**
 
-  ![image-20201020092245893](assets/image-20201020092245893.png)
+  ![image-20201020092245893](README.assets/image-20201020092245893.png)
 
-![image-20201020092304955](assets/image-20201020092304955.png)
+![image-20201020092304955](README.assets/image-20201020092304955.png)
 
 # 3.关于Cloud各种组件的停更/升级/替换
 
@@ -142,11 +142,11 @@ https://start.spring.io/actuator/info
 ​    **明细条目**
 ​      以前
 
-![image-20201020093522815](assets/image-20201020093522815.png)
+![image-20201020093522815](README.assets/image-20201020093522815.png)
 
 ​      now2020
 
-![image-20201020093603626](assets/image-20201020093603626.png)
+![image-20201020093603626](README.assets/image-20201020093603626.png)
 
 ##  3.2 参考资料见官网
 
@@ -172,37 +172,37 @@ https://start.spring.io/actuator/info
 
     2.聚合总工程名字
 
-  ![image-20201020094239283](assets/image-20201020094239283.png)
+  ![image-20201020094239283](README.assets/image-20201020094239283.png)
 
     3.Maven选版本
 
-  ![image-20201020094305904](assets/image-20201020094305904.png)
+  ![image-20201020094305904](README.assets/image-20201020094305904.png)
 
     4.工程名字
 
-  ![image-20201020094341751](assets/image-20201020094341751.png)
+  ![image-20201020094341751](README.assets/image-20201020094341751.png)
 
     5.字符编码
 
-  ![image-20201020094414848](assets/image-20201020094414848.png)
+  ![image-20201020094414848](README.assets/image-20201020094414848.png)
 
-  ![image-20201020094450406](assets/image-20201020094450406.png)
+  ![image-20201020094450406](README.assets/image-20201020094450406.png)
 
     6.注解生效激活
 
-  ![image-20201020094521783](assets/image-20201020094521783.png)
+  ![image-20201020094521783](README.assets/image-20201020094521783.png)
 
     7.java编译版本选8
 
-  ![image-20201020094910354](SpringCloud%E7%AC%AC%E4%BA%8C%E5%AD%A3.assets/image-20201020094910354.png)
+  ![image-20201020094910354](README.assets/image-20201020094910354.png)
 
     8.File Type过滤
 
-  ![image-20201020095104239](assets/image-20201020095104239.png)
+  ![image-20201020095104239](README.assets/image-20201020095104239.png)
 
   *.hprof;*.idea;*.iml;*.pyc;*.pyo;*.rbc;*.yarb;*~;.DS_Store;.git;.hg;.svn;CVS;__pycache__;_svn;vssver.scc;vssver2.scc;
 
-  ![image-20201020095140037](assets/image-20201020095140037.png)
+  ![image-20201020095140037](README.assets/image-20201020095140037.png)
 
 - 父工程POM
 
@@ -335,7 +335,7 @@ https://start.spring.io/actuator/info
 
   然后我还出现了一个问题，由于使用了HTTPS，存在着SSL证书验证的问题，因此我在IDEA中添加了一行配置：
 
-  ![img](SpringCloud%E7%AC%AC%E4%BA%8C%E5%AD%A3.assets/2020022719493843.png)
+  ![img](README.assets/2020022719493843.png)
 
   配置如下：
 
@@ -349,9 +349,9 @@ https://start.spring.io/actuator/info
 
   Maven中的dependencyManagement和dependencies
 
-  ![image-20201020095735179](assets/image-20201020095735179.png)
+  ![image-20201020095735179](README.assets/image-20201020095735179.png)
 
-  ![image-20201020095815444](assets/image-20201020095815444.png)
+  ![image-20201020095815444](README.assets/image-20201020095815444.png)
 
   maven中跳过单元测试
 
@@ -689,12 +689,12 @@ https://start.spring.io/actuator/info
 
 - 测试
 
-  ![image-20201020150630207](assets/image-20201020150630207.png)
+  ![image-20201020150630207](README.assets/image-20201020150630207.png)
 
   **http://localhost:8001/payment/get/1**
   **postman模拟post**
 
-  ![image-20201020160057183](assets/image-20201020160057183.png)
+  ![image-20201020160057183](README.assets/image-20201020160057183.png)
 
   **运行**
 
@@ -702,7 +702,7 @@ https://start.spring.io/actuator/info
 
   开启Run DashBoard
 
-  ![image-20201020160300512](assets/image-20201020160300512.png)
+  ![image-20201020160300512](README.assets/image-20201020160300512.png)
 
   填入以下内容：
 
@@ -760,13 +760,13 @@ https://start.spring.io/actuator/info
 
 - Enabling automatic build 
 
-![image-20201020164014387](assets/image-20201020164014387.png)
+![image-20201020164014387](README.assets/image-20201020164014387-1603364887594.png)
 
 - Update the value of
 
-  ![image-20201020164105766](assets/image-20201020164105766.png)
+  ![image-20201020164105766](README.assets/image-20201020164105766-1603364887594.png)
 
-  ![image-20201020164259826](assets/image-20201020164259826.png)
+  ![image-20201020164259826](README.assets/image-20201020164259826-1603364887594.png)
 
 - 重启IDEA
 
@@ -776,7 +776,7 @@ https://start.spring.io/actuator/info
 
   注意项目名称与上面图片可能不一致需要保持一致哦
 
-  ![image-20201020171041616](assets/image-20201020171041616.png)
+  ![image-20201020171041616](README.assets/image-20201020171041616-1603364887595.png)
 
 - 改POM
 
@@ -858,20 +858,20 @@ https://start.spring.io/actuator/info
 
   创建entities(将cloud-provider-payment8001工程下的entities包下的两个实体类复制过来)
 
-  ![image-20201020172704234](assets/image-20201020172704234.png)
+  ![image-20201020172704234](README.assets/image-20201020172704234-1603364887595.png)
 
   首说RestTemplate
 
   > 是什么
   >
-  > ![image-20201020172930219](assets/image-20201020172930219.png)
+  > ![image-20201020172930219](README.assets/image-20201020172930219-1603364887595.png)
   >
   > 官网及使用
   >
   > **官网地址：**
   > https://docs.spring.io/spring-framework/docs/5.2.2.RELEASE/javadoc-api/org/springframework/web/client/RestTemplate.html
   >
-  > ![image-20201020173034647](assets/image-20201020173034647.png)
+  > ![image-20201020173034647](README.assets/image-20201020173034647-1603364887595.png)
 
   config配置类（ApplicationContextConfig）
 
@@ -939,18 +939,18 @@ https://start.spring.io/actuator/info
   >
   > 不要忘记@RequestBody注解
   >
-  > ![image-20201020173741955](assets/image-20201020173741955.png)
+  > ![image-20201020173741955](README.assets/image-20201020173741955-1603364887595.png)
 
 #### 4.3.1.4.工程重构
 
 > 观察问题
 >
-> ![image-20201020175809238](assets/image-20201020175809238.png)
+> ![image-20201020175809238](README.assets/image-20201020175809238-1603364887595.png)
 >
 >   系统中有重复部分，重构
 > 新建 cloud-api-commons
 >
-> ![image-20201020180317364](assets/image-20201020180317364.png)
+> ![image-20201020180317364](README.assets/image-20201020180317364-1603364887595.png)
 >
 > POM
 >
@@ -1019,7 +1019,7 @@ https://start.spring.io/actuator/info
 
 ### 4.3.2目前工程样图
 
-![image-20201020181733315](assets/image-20201020181733315.png)
+![image-20201020181733315](README.assets/image-20201020181733315-1603364887595.png)
 
 # 5.Eureka服务注册与发现
 
@@ -1027,17 +1027,17 @@ https://start.spring.io/actuator/info
 
 ### 5.1.1什么是服务治理
 
-![image-20201020183348148](assets/image-20201020183348148.png)
+![image-20201020183348148](README.assets/image-20201020183348148-1603364887595.png)
 
 ### 5.1.2什么是服务注册
 
-![image-20201020183437044](assets/image-20201020183437044.png)
+![image-20201020183437044](README.assets/image-20201020183437044-1603364887595.png)
 
-![image-20201020183517501](assets/image-20201020183517501.png)
+![image-20201020183517501](README.assets/image-20201020183517501-1603364887595.png)
 
 ### 5.1.3Eureka两组件
 
-![image-20201020183709671](assets/image-20201020183709671.png)
+![image-20201020183709671](README.assets/image-20201020183709671-1603364887595.png)
 
 ## 5.2单机Eureka构建步骤
 
@@ -1117,7 +1117,7 @@ https://start.spring.io/actuator/info
 >
 >   1.X和2.X的对比说明
 >
->   ![image-20201020190251651](assets/image-20201020190251651.png)
+>   ![image-20201020190251651](README.assets/image-20201020190251651-1603364887596.png)
 >
 > - 写YML
 >
@@ -1163,7 +1163,7 @@ https://start.spring.io/actuator/info
 >   http://localhost:7001/
 >   结果页面
 >
->   ![image-20201020191217881](assets/image-20201020191217881.png)
+>   ![image-20201020191217881](README.assets/image-20201020191217881-1603364887596.png)
 
 ### 5.2.2EurekaClient端cloud-provider-payment8001将注册进EurekaServer成为服务提供者provider，类似尚硅谷学校对外提供授课服务
 
@@ -1181,7 +1181,7 @@ https://start.spring.io/actuator/info
 >
 > 1.X和2.X的对比说明
 >
-> ![image-20201020191656685](assets/image-20201020191656685.png)
+> ![image-20201020191656685](README.assets/image-20201020191656685-1603364887596.png)
 >
 > - 写YML
 >
@@ -1221,15 +1221,15 @@ https://start.spring.io/actuator/info
 >   > 先要启动EurekaServer
 >   > http://localhost:7001/
 >   >
->   > ![image-20201020200113893](assets/image-20201020200113893.png)
+>   > ![image-20201020200113893](README.assets/image-20201020200113893-1603364887596.png)
 >   >
 >   > 微服务注册名配置说明
 >   >
->   > ![image-20201020200207303](assets/image-20201020200207303.png)
+>   > ![image-20201020200207303](README.assets/image-20201020200207303-1603364887596.png)
 >
 > - 自我保护机制
 >
->   ![image-20201020200255151](assets/image-20201020200255151.png)
+>   ![image-20201020200255151](README.assets/image-20201020200255151-1603364887596.png)
 
 ### 5.2.3EurekaClient端cloud-consumer-order80将注册进EurekaServer成为服务消费者consumer,类似来尚硅谷上课消费的各位同学
 
@@ -1289,13 +1289,13 @@ https://start.spring.io/actuator/info
 > > 再要启动服务提供者provider，8001服务
 > > eureka服务器
 > >
-> > ![image-20201020201007168](assets/image-20201020201007168.png)
+> > ![image-20201020201007168](README.assets/image-20201020201007168-1603364887596.png)
 > >
 > > http://localhost/consumer/payment/get/1
 
 ### 5.2.4bug
 
-![image-20201020201733451](assets/image-20201020201733451.png)
+![image-20201020201733451](README.assets/image-20201020201733451-1603364887596.png)
 
 
 
@@ -1303,7 +1303,7 @@ https://start.spring.io/actuator/info
 
 ### 5.3.1Eureka集群原理说明
 
-![image-20201020202405812](assets/image-20201020202405812.png)
+![image-20201020202405812](README.assets/image-20201020202405812-1603364887596.png)
 
 ### 5.3.2EurekaServer集群环境构建步骤
 
@@ -1317,7 +1317,7 @@ https://start.spring.io/actuator/info
 >
 >   找到C:\Windows\System32\driver\etc路径下的hosts文件
 >
->   ![image-20201020203628863](assets/image-20201020203628863.png)
+>   ![image-20201020203628863](README.assets/image-20201020203628863-1603364887597.png)
 >
 >   修改映射配置添加进hosts文件
 >
@@ -1327,7 +1327,7 @@ https://start.spring.io/actuator/info
 >
 > - 写YML（以前单机）
 >
->   ![image-20201020204230306](assets/image-20201020204230306.png)
+>   ![image-20201020204230306](README.assets/image-20201020204230306-1603364887597.png)
 >
 >   > 7001
 >   >
@@ -1399,7 +1399,7 @@ service-url:
 
 - 写YML
 
-  ![image-20201020211532283](assets/image-20201020211532283.png)
+  ![image-20201020211532283](README.assets/image-20201020211532283-1603364887597.png)
 
 >   7001
 >
@@ -1437,7 +1437,7 @@ service-url:
 
 >   找到C:\Windows\System32\drivers\etc路径下的hosts文件
 >
-> ![image-20201020211733193](assets/image-20201020211733193.png)
+> ![image-20201020211733193](README.assets/image-20201020211733193-1603364887597.png)
 >
 >   修改映射配置添加进hosts文件
 >
@@ -1448,11 +1448,11 @@ service-url:
 
 >   8001
 >
-> ![image-20201020211809470](assets/image-20201020211809470.png)
+> ![image-20201020211809470](README.assets/image-20201020211809470-1603364887597.png)
 >
 >   8002
 >
-> ![image-20201020212015476](assets/image-20201020212015476.png)
+> ![image-20201020212015476](README.assets/image-20201020212015476-1603364887597.png)
 
 ### 5.3.7负载均衡
 
@@ -1467,7 +1467,7 @@ service-url:
 
 - 使用@LoadBalanced注解赋予RestTemplate负载均衡的能力
 
-  ![image-20201020220120106](assets/image-20201020220120106.png)
+  ![image-20201020220120106](README.assets/image-20201020220120106-1603364887597.png)
 
 - ApplicationContextBean
 
@@ -1488,7 +1488,7 @@ service-url:
 
 - Ribbon和Eureka整合后Consumer可以直接调用服务而不用再关心地址和端口号，且该服务还有负载功能了
 
-  ![image-20201020214141557](assets/image-20201020214141557.png)
+  ![image-20201020214141557](README.assets/image-20201020214141557-1603364887597.png)
 
 ## 5.4actuator微服务信息完善
 
@@ -1565,7 +1565,7 @@ service-url:
 
   @EnableDiscoveryClient
 
-![image-20201020223831468](assets/image-20201020223831468.png)
+![image-20201020223831468](README.assets/image-20201020223831468-1603364887597.png)
 
 - 自测
 
@@ -1579,17 +1579,17 @@ service-url:
 
 -   故障现象
 
-  ![image-20201020224330537](assets/image-20201020224330537.png)
+  ![image-20201020224330537](README.assets/image-20201020224330537-1603364887597.png)
 
 -   导致原因
 
-  ![image-20201020224450250](assets/image-20201020224450250.png)
+  ![image-20201020224450250](README.assets/image-20201020224450250-1603364887597.png)
 
-  ![image-20201020224517772](assets/image-20201020224517772.png)
+  ![image-20201020224517772](README.assets/image-20201020224517772-1603364887597.png)
 
-![image-20201020224606843](assets/image-20201020224606843.png)
+![image-20201020224606843](README.assets/image-20201020224606843-1603364887597.png)
 
-![image-20201020224656439](assets/image-20201020224656439.png)
+![image-20201020224656439](README.assets/image-20201020224656439-1603364887598.png)
 
 1. 一句话：某时刻某一个微服务不可用了，Eureka不会立刻清理，依旧会对该微服务的信息进行保存
 2. 属于CAP里面的AP分支
@@ -1626,7 +1626,7 @@ instance:
     lease-expiration-duration-in-seconds:  2
 ```
 
-​    ![image-20201020225933407](assets/image-20201020225933407.png)
+​    ![image-20201020225933407](README.assets/image-20201020225933407-1603364887598.png)
 
   **测试**
         7001和8001都配置完成
@@ -1779,13 +1779,13 @@ https://github.com/Netflix/eureka/wiki
 >
 > > ​        启动后问题
 > >
-> > ![image-20201021003706549](assets/image-20201021003706549.png)
+> > ![image-20201021003706549](README.assets/image-20201021003706549-1603364887598.png)
 > >
 > > ​        why
 > >
 > > > ​          解决zookeeper版本jar包冲突问题
 > > >
-> > > ![image-20201021003748802](assets/image-20201021003748802.png)
+> > > ![image-20201021003748802](README.assets/image-20201021003748802-1603364887598.png)
 > > >
 > > > ​          排除zk冲突后的新POM
 > > >
@@ -1815,13 +1815,13 @@ https://github.com/Netflix/eureka/wiki
 >
 > ​      验证测试
 >
-> ![image-20201021003945480](assets/image-20201021003945480.png)
+> ![image-20201021003945480](README.assets/image-20201021003945480-1603364887598.png)
 >
 > ​        http://localhost:8004/payment/zk
 >
 > ​      验证测试2
 >
-> ![image-20201021004012819](assets/image-20201021004012819.png)
+> ![image-20201021004012819](README.assets/image-20201021004012819-1603364887598.png)
 >
 > ​        获得json串后用在线工具查看试试
 >
@@ -2018,13 +2018,13 @@ https://github.com/Netflix/eureka/wiki
 >
 > >  启动后问题
 > >
-> > ![image-20201021011321130](assets/image-20201021011321130.png)
+> > ![image-20201021011321130](README.assets/image-20201021011321130-1603364887598.png)
 > >
 > >  why
 > >
 > > > 解决zookeeper版本jar包冲突问题
 > > >
-> > > ![image-20201021011345770](assets/image-20201021011345770.png)
+> > > ![image-20201021011345770](README.assets/image-20201021011345770-1603364887598.png)
 > > >
 > > >  排出zk冲突后的新POM
 > > >
@@ -2054,7 +2054,7 @@ https://github.com/Netflix/eureka/wiki
 >
 > ​      验证测试
 >
-> ![image-20201021011502748](assets/image-20201021011502748.png)
+> ![image-20201021011502748](README.assets/image-20201021011502748-1603364887598.png)
 >
 > ​        http://localhost:8004/payment/zk
 >
@@ -2068,13 +2068,13 @@ https://github.com/Netflix/eureka/wiki
 
 ### 7.1.1是什么
 
-![image-20201021100226165](assets/image-20201021100226165.png)
+![image-20201021100226165](README.assets/image-20201021100226165-1603364887598.png)
 
 https://www.consul.io/intro/index.html
 
 ### 7.1.2能干嘛
 
-![image-20201021100626876](assets/image-20201021100626876.png)
+![image-20201021100626876](README.assets/image-20201021100626876-1603364887598.png)
 
 服务发现:提供HTTP和DNS两种方式
 
@@ -2100,7 +2100,7 @@ https://www.consul.io/downloads.html
 
 https://learn.hashicorp.com/consul/getting-started/install.html
 
-![image-20201021101132245](assets/image-20201021101132245.png)
+![image-20201021101132245](README.assets/image-20201021101132245-1603364887598.png)
 
 下载完成后只有一个Consul.exe文件，硬盘路径下双击运行、查看版本信息。
 
@@ -2112,7 +2112,7 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
 - 结果页面
 
-  ![image-20201021101331128](assets/image-20201021101331128.png)
+  ![image-20201021101331128](README.assets/image-20201021101331128-1603364887598.png)
 
 ## 7.3服务提供者
 
@@ -2252,7 +2252,7 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
   http://localhost:8006/payment/consul
 
-![image-20201021103701174](assets/image-20201021103701174.png)
+![image-20201021103701174](README.assets/image-20201021103701174-1603364887599.png)
 
 ## 7.4服务消费者
 
@@ -2415,7 +2415,7 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
 - 验证测试
 
-  ![image-20201021104918900](assets/image-20201021104918900.png)
+  ![image-20201021104918900](README.assets/image-20201021104918900-1603364887599.png)
 
 - 访问测试地址: http://localhost/consumer/payment/consul
 
@@ -2430,19 +2430,19 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
 ### 7.5.2经典CAP图
 
-![image-20201021105219429](assets/image-20201021105219429.png)
+![image-20201021105219429](README.assets/image-20201021105219429-1603364887599.png)
 
 -   AP(Eureka)
 
-  ![image-20201021105307797](assets/image-20201021105307797.png)
+  ![image-20201021105307797](README.assets/image-20201021105307797-1603364887599.png)
 
- ![image-20201021105337557](assets/image-20201021105337557.png)
+ ![image-20201021105337557](README.assets/image-20201021105337557-1603364887599.png)
 
 -  CP(Zookeeper/Consul)
 
-  ![image-20201021105421180](assets/image-20201021105421180.png)
+  ![image-20201021105421180](README.assets/image-20201021105421180-1603364887599.png)
 
-![image-20201021105454223](assets/image-20201021105454223.png)
+![image-20201021105454223](README.assets/image-20201021105454223-1603364887599.png)
 
 # 8.Ribbon负载均衡服务调用
 
@@ -2450,32 +2450,32 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
 - 是什么
 
-  ![image-20201021110240528](assets/image-20201021110240528.png)
+  ![image-20201021110240528](README.assets/image-20201021110240528-1603364887599.png)
 
 - 官网资料
 
   https://github.com/Netflix/ribbon/wiki/Getting-Started
   Ribbon目前也进入维护模式
 
-  ![image-20201021110355178](assets/image-20201021110355178.png)
+  ![image-20201021110355178](README.assets/image-20201021110355178-1603364887599.png)
 
   未来替换方案
 
-  ![image-20201021110427589](assets/image-20201021110427589.png)
+  ![image-20201021110427589](README.assets/image-20201021110427589-1603364887599.png)
 
 - 能干嘛
 
   LB（负载均衡）
 
-  ![image-20201021110636241](assets/image-20201021110636241.png)
+  ![image-20201021110636241](README.assets/image-20201021110636241-1603364887599.png)
 
   >   集中式LB
   >
-  > ![image-20201021110735753](assets/image-20201021110735753.png)
+  > ![image-20201021110735753](README.assets/image-20201021110735753-1603364887599.png)
   >
   >   进程内LB
   >
-  > ![image-20201021110804411](assets/image-20201021110804411.png)
+  > ![image-20201021110804411](README.assets/image-20201021110804411-1603364887599.png)
 
   
 
@@ -2486,17 +2486,17 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
 - 架构说明
 
-  ![image-20201021111111774](assets/image-20201021111111774.png)
+  ![image-20201021111111774](README.assets/image-20201021111111774-1603364887600.png)
 
-  ![image-20201021111131305](assets/image-20201021111131305.png)
+  ![image-20201021111131305](README.assets/image-20201021111131305-1603364887600.png)
 
   总结：Ribbon其实就是一个软负载均衡的客户端组件，他可以和其他所需请求的客户端结合使用，和eureka结合只是其中的一个实例。
 
 - POM
 
-  ![image-20201021111236426](assets/image-20201021111236426.png)
+  ![image-20201021111236426](README.assets/image-20201021111236426-1603364887600.png)
 
-  ![image-20201021111255789](assets/image-20201021111255789.png)
+  ![image-20201021111255789](README.assets/image-20201021111255789-1603364887600.png)
 
 - 二说RestTemplate的使用
 
@@ -2504,15 +2504,15 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
     https://docs.spring.io/spring-framework/docs/5.2.2.RELEASE/javadoc-api/org/springframework/web/client/RestTemplate.html
 
-    ![image-20201021111522129](assets/image-20201021111522129.png)
+    ![image-20201021111522129](README.assets/image-20201021111522129-1603364887600.png)
 
   - getForObject方法/getForEntity方法
 
-    ![image-20201021111602955](assets/image-20201021111602955.png)
+    ![image-20201021111602955](README.assets/image-20201021111602955-1603364887600.png)
 
   - postForObject/postForEntity
 
-    ![image-20201021111625520](assets/image-20201021111625520.png)
+    ![image-20201021111625520](README.assets/image-20201021111625520-1603364887600.png)
 
   - GET请求方法
 
@@ -2522,7 +2522,7 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
 ### 8.3.1IRule:根据特定算法从服务列表中选取一个要访问的服务
 
-![image-20201021112138978](assets/image-20201021112138978.png)
+![image-20201021112138978](README.assets/image-20201021112138978-1603364887600.png)
 
 - com.netflix.loadbalancer.RoundRobinRule:轮询
 - com.netflix.loadbalancer.RandomRule:随机
@@ -2538,11 +2538,11 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
 - 注意配置细节
 
-  ![image-20201021112413373](assets/image-20201021112413373.png)
+  ![image-20201021112413373](README.assets/image-20201021112413373-1603364887600.png)
 
 - 新建package:com.atguigu.myrule
 
-  ![image-20201021112741811](assets/image-20201021112741811.png)
+  ![image-20201021112741811](README.assets/image-20201021112741811-1603364887600.png)
 
 - 上面包下新建MySelfRule规则类
 
@@ -2593,7 +2593,7 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
 - 原理
 
-  ![image-20201021113202876](assets/image-20201021113202876.png)
+  ![image-20201021113202876](README.assets/image-20201021113202876-1603364887600.png)
 
 - RoundRobinRule源码
 
@@ -2616,7 +2616,7 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
   ​    1.ApplicationContextBean去掉@LoadBalanced
 
-  ![image-20201021115714021](assets/image-20201021115714021.png)
+  ![image-20201021115714021](README.assets/image-20201021115714021-1603364887601.png)
 
   ​    2.LoadBalancer接口
 
@@ -2746,20 +2746,20 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
 - OpenFeign是什么
 
-  ![image-20201021120940762](assets/image-20201021120940762.png)
+  ![image-20201021120940762](README.assets/image-20201021120940762-1603364887601.png)
 
-  ![image-20201021121020000](assets/image-20201021121020000.png)
+  ![image-20201021121020000](README.assets/image-20201021121020000-1603364887601.png)
 
   Feign是一个声明式的web服务客户端，让编写web服务客户端变得非常容易，只需创建一个接口并在接口上添加注解即可
   GitHub: https://github.com/spring-cloud/spring-cloud-openfeign
 
 - 能干嘛
 
-  ![image-20201021121119677](assets/image-20201021121119677.png)
+  ![image-20201021121119677](README.assets/image-20201021121119677-1603364887601.png)
 
 - Feign和OpenFeign两者区别
 
-  ![image-20201021121240253](assets/image-20201021121240253.png)
+  ![image-20201021121240253](README.assets/image-20201021121240253-1603364887601.png)
 
 ## 9.2OpenFeign使用步骤
 
@@ -2767,7 +2767,7 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
 - 新建cloud-consumer-feign-order80:Feign在消费端使用
 
-  ![image-20201021121501727](assets/image-20201021121501727.png)
+  ![image-20201021121501727](README.assets/image-20201021121501727-1603364887601.png)
 
 - POM
 
@@ -2929,7 +2929,7 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
 - 小总结
 
-  ![image-20201021123510865](assets/image-20201021123510865.png)
+  ![image-20201021123510865](README.assets/image-20201021123510865-1603364887601.png)
 
 ## 9.3OpenFeign超时控制
 
@@ -2969,17 +2969,17 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
     - 错误页面
 
-      ![image-20201021124844844](assets/image-20201021124844844.png)
+      ![image-20201021124844844](README.assets/image-20201021124844844-1603364887601.png)
 
 - OpenFeign默认等待一秒钟，超过后报错
 
 - 是什么
 
-  ![image-20201021130714291](assets/image-20201021130714291.png)
+  ![image-20201021130714291](README.assets/image-20201021130714291-1603364887601.png)
 
   - OpenFeign默认支持Ribbon
 
-    ![image-20201021130810048](assets/image-20201021130810048.png)
+    ![image-20201021130810048](README.assets/image-20201021130810048-1603364887601.png)
 
 - YML文件里需要开启OpenFeign客户端超时控制
 
@@ -2995,11 +2995,11 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
 - 是什么
 
-  ![image-20201021131323308](assets/image-20201021131323308.png)
+  ![image-20201021131323308](README.assets/image-20201021131323308-1603364887601.png)
 
 - 日志级别
 
-  ![image-20201021131344294](assets/image-20201021131344294.png)
+  ![image-20201021131344294](README.assets/image-20201021131344294-1603364887601.png)
 
 - 配置日志bean
 
@@ -3036,15 +3036,15 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
 - 分布式系统面临的问题
 
-  ![image-20201021132353294](assets/image-20201021132353294.png)
+  ![image-20201021132353294](README.assets/image-20201021132353294-1603364887602.png)
 
-  ![image-20201021132419826](assets/image-20201021132419826.png)
+  ![image-20201021132419826](README.assets/image-20201021132419826-1603364887602.png)
 
-  ![image-20201021132521674](assets/image-20201021132521674.png)
+  ![image-20201021132521674](README.assets/image-20201021132521674-1603364887602.png)
 
 - 是什么
 
-  ![image-20201021132655825](assets/image-20201021132655825.png)
+  ![image-20201021132655825](README.assets/image-20201021132655825-1603364887602.png)
 
 - 能干嘛
 
@@ -3062,7 +3062,7 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
   https://github.com/Netflix/Hystrix
 
-  ![image-20201021133010122](assets/image-20201021133010122.png)
+  ![image-20201021133010122](README.assets/image-20201021133010122-1603364887602.png)
 
   -   被动修复bugs
 
@@ -3276,7 +3276,7 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
     -   开启Jmeter，来20000个并发压死8001，20000个请求都去访问paymentInfo_TimeOut服务
 
-      ![image-20201021140004710](assets/image-20201021140004710.png)
+      ![image-20201021140004710](README.assets/image-20201021140004710-1603364887602.png)
 
     -   再来一个访问
           http://localhost:8001/payment/hystrix/ok/31
@@ -3504,7 +3504,7 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
       -   图示
 
-        ![image-20201021143914206](assets/image-20201021143914206.png)
+        ![image-20201021143914206](README.assets/image-20201021143914206-1603364887602.png)
 
     - 主启动类激活：添加新注解@EnableCircuitBreaker
 
@@ -3556,13 +3556,13 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
       -  @DefaultProperties(defaultFallback = "")
 
-        ![image-20201021144850665](assets/image-20201021144850665.png)
+        ![image-20201021144850665](README.assets/image-20201021144850665-1603364887602.png)
 
-         ![image-20201021151409458](assets/image-20201021151409458.png)
+         ![image-20201021151409458](README.assets/image-20201021151409458-1603364887602.png)
 
         说明
 
-        ![image-20201021144946464](assets/image-20201021144946464.png)
+        ![image-20201021144946464](README.assets/image-20201021144946464-1603364887603.png)
 
       -  controller配置
 
@@ -3637,7 +3637,7 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
       - 再看我们的业务类PaymentController
 
-        ![image-20201021155057901](assets/image-20201021155057901.png)
+        ![image-20201021155057901](README.assets/image-20201021155057901-1603364887603.png)
 
       - 修改cloud-consumer-feign-hystrix-order80
 
@@ -3709,7 +3709,7 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
   - 熔断是什么
 
-    ![image-20201021163747931](assets/image-20201021163747931.png)
+    ![image-20201021163747931](README.assets/image-20201021163747931-1603364887603.png)
 
     大神论文
       https://martinfowler.com/bliki/CircuitBreaker.html
@@ -3743,7 +3743,7 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
       - why配置这些参数
 
-        ![image-20201021164157521](assets/image-20201021164157521.png)
+        ![image-20201021164157521](README.assets/image-20201021164157521-1603364887603.png)
 
     - PaymentController
 
@@ -3770,7 +3770,7 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
     - 大神结论
 
-      ![image-20201021164921135](assets/image-20201021164921135.png)
+      ![image-20201021164921135](README.assets/image-20201021164921135-1603364887603.png)
 
     - 熔断类型
 
@@ -3785,11 +3785,11 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
       - 官网步骤
 
-        ![image-20201021165140625](assets/image-20201021165140625.png)
+        ![image-20201021165140625](README.assets/image-20201021165140625-1603364887603.png)
 
       -   断路器在什么情况下开始起作用
 
-        ![image-20201021165248164](assets/image-20201021165248164.png)
+        ![image-20201021165248164](README.assets/image-20201021165248164-1603364887603.png)
 
       -  断路器开启或者关闭的条件
 
@@ -3802,11 +3802,11 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
       - 断路器打开之后
 
-        ![image-20201021170046607](assets/image-20201021170046607.png)
+        ![image-20201021170046607](README.assets/image-20201021170046607-1603364887603.png)
 
       - All配置
 
-        ![image-20201021170109015](assets/image-20201021170109015.png)
+        ![image-20201021170109015](README.assets/image-20201021170109015-1603364887604.png)
 
 - 服务限流:后面高级篇讲解alibaba的Sentinel说明
 
@@ -3820,13 +3820,13 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
   - 步骤说明
 
-    ![image-20201021170650592](assets/image-20201021170650592.png)
+    ![image-20201021170650592](README.assets/image-20201021170650592-1603364887604.png)
 
 ## 10.5服务监控hystrixDashboard
 
 ## 10.1概述
 
-![image-20201021171810100](assets/image-20201021171810100.png)
+![image-20201021171810100](README.assets/image-20201021171810100-1603364887604.png)
 
 ## 10.2仪表盘9001
 
@@ -3889,7 +3889,7 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
 - HystrixDashboardMain9001+新注解@EnableHystrixDashboard
 
-  ![image-20201021173827480](assets/image-20201021173827480.png)
+  ![image-20201021173827480](README.assets/image-20201021173827480-1603364887604.png)
 
 - 所有Provider微服务提供类（8001/8002/8003）都需要监控依赖配置
 
@@ -3942,11 +3942,11 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
         - 监控结果，成功
 
-          ![image-20201021174650118](assets/image-20201021174650118.png)          
+          ![image-20201021174650118](README.assets/image-20201021174650118-1603364887604.png)          
 
         - 监控结果，失败
 
-          ![image-20201021174714069](assets/image-20201021174714069.png)
+          ![image-20201021174714069](README.assets/image-20201021174714069-1603364887604.png)
 
     - 如何看 
 
@@ -3954,25 +3954,25 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
       - 1圈
 
-        ![image-20201021174830960](assets/image-20201021174830960.png)
+        ![image-20201021174830960](README.assets/image-20201021174830960-1603364887604.png)
 
       - 1线
 
-        ![image-20201021174847834](assets/image-20201021174847834.png)
+        ![image-20201021174847834](README.assets/image-20201021174847834-1603364887604.png)
 
       -  整图说明
 
-        ![image-20201021174914207](assets/image-20201021174914207.png)
+        ![image-20201021174914207](README.assets/image-20201021174914207-1603364887604.png)
 
-        ![image-20201021174935925](assets/image-20201021174935925.png)
+        ![image-20201021174935925](README.assets/image-20201021174935925-1603364887605.png)
 
       -  整图说明2      
 
-        ![image-20201021175017300](assets/image-20201021175017300.png)
+        ![image-20201021175017300](README.assets/image-20201021175017300-1603364887605.png)
 
     - 搞懂一个才能看懂复杂的
 
-      ![image-20201021175047629](assets/image-20201021175047629.png)
+      ![image-20201021175047629](README.assets/image-20201021175047629-1603364887605.png)
 
 # 11.zuul路由网关（没讲）
 
@@ -3987,17 +3987,17 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
 - 是什么
 
-  ![image-20201021190221861](assets/image-20201021190221861.png)
+  ![image-20201021190221861](README.assets/image-20201021190221861-1603364887605.png)
 
-  ![image-20201021190251877](assets/image-20201021190251877.png)
+  ![image-20201021190251877](README.assets/image-20201021190251877-1603364887605.png)
 
   - 概述
 
-    ![image-20201021190439228](assets/image-20201021190439228.png)
+    ![image-20201021190439228](README.assets/image-20201021190439228-1603364887605.png)
 
-    ![image-20201021190501335](assets/image-20201021190501335.png)
+    ![image-20201021190501335](README.assets/image-20201021190501335-1603364887605.png)
 
-    ![image-20201021190521083](assets/image-20201021190521083.png)
+    ![image-20201021190521083](README.assets/image-20201021190521083-1603364887605.png)
 
   - 一句话
 
@@ -4005,7 +4005,7 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
     - 源码架构
 
-      ![image-20201021190703741](assets/image-20201021190703741.png)
+      ![image-20201021190703741](README.assets/image-20201021190703741-1603364887605.png)
 
 - 能干嘛
 
@@ -4018,7 +4018,7 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
 - 微服务架构中网关在哪里
 
-  ![image-20201021190903576](assets/image-20201021190903576.png)
+  ![image-20201021190903576](README.assets/image-20201021190903576-1603364887605.png)
 
 - 有了Zuul了怎么又出来了gateway
 
@@ -4026,21 +4026,21 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
     - 1.neflix不太靠谱，zuul2.0一直跳票,迟迟不发布
 
-      ![image-20201021191222375](assets/image-20201021191222375.png)
+      ![image-20201021191222375](README.assets/image-20201021191222375-1603364887606.png)
 
     - 2.SpringCloud Gateway具有如下特性
 
-      ![image-20201021191406871](assets/image-20201021191406871.png)
+      ![image-20201021191406871](README.assets/image-20201021191406871-1603364887606.png)
 
     - 3.SpringCloud Gateway与Zuul的区别
 
-      ![image-20201021191429850](assets/image-20201021191429850.png)
+      ![image-20201021191429850](README.assets/image-20201021191429850-1603364887606.png)
 
   - Zuul1.x模型
 
-    ![image-20201021191622797](assets/image-20201021191622797.png)
+    ![image-20201021191622797](README.assets/image-20201021191622797-1603364887606.png)
 
-    ![image-20201021191719535](assets/image-20201021191719535.png)
+    ![image-20201021191719535](README.assets/image-20201021191719535-1603364887606.png)
 
   - GateWay模型
 
@@ -4048,11 +4048,11 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
     ![image-20201021191817051](assets/image-20201021191817051.png)
 
-    ![image-20201021191840342](assets/image-20201021191840342.png)
+    ![image-20201021191840342](README.assets/image-20201021191840342-1603364887606.png)
 
     说明
 
-    ![image-20201021191936695](assets/image-20201021191936695.png)
+    ![image-20201021191936695](README.assets/image-20201021191936695-1603364887606.png)
 
 ## 12.2三大核心概念
 
@@ -4064,15 +4064,15 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
 - 总体
 
-  ![image-20201021192239792](assets/image-20201021192239792.png)
+  ![image-20201021192239792](README.assets/image-20201021192239792-1603364887606.png)
 
 ## 12.3Gateway工作流程
 
 - 官网总结
 
-  ![image-20201021192359190](assets/image-20201021192359190.png)
+  ![image-20201021192359190](README.assets/image-20201021192359190-1603364887606.png)
 
-  ![image-20201021192432600](assets/image-20201021192432600.png)
+  ![image-20201021192432600](README.assets/image-20201021192432600-1603364887606.png)
 
 - 核心逻辑:路由转发+执行过滤器链
 
@@ -4261,7 +4261,7 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
   - 访问说明    
 
-    ![image-20201021200124567](assets/image-20201021200124567.png)
+    ![image-20201021200124567](README.assets/image-20201021200124567-1603364887607.png)
 
     - 添加网关前:http://localhost:8001/payment/get/31
     - 添加网关后:http://localhost:9527/payment/get/31
@@ -4274,7 +4274,7 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
     - 官网案例     
 
-      ![image-20201021200207708](assets/image-20201021200207708.png) 
+      ![image-20201021200207708](README.assets/image-20201021200207708-1603364887607.png) 
 
     - 百度国内新闻网址，需要外网：http://news.baidu.com/guoji
 
@@ -4313,7 +4313,7 @@ https://learn.hashicorp.com/consul/getting-started/install.html
               
               ```
 
-              ![image-20201021201117071](assets/image-20201021201117071.png)
+              ![image-20201021201117071](README.assets/image-20201021201117071-1603364887607.png)
 
 ## 12.5通过微服务名实现动态路由
 
@@ -4371,28 +4371,28 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
   启动我们的gatewat9527
 
-  ![image-20201021204618320](assets/image-20201021204618320.png)
+  ![image-20201021204618320](README.assets/image-20201021204618320-1603364887607.png)
 
 - Route Predicate Factories这个是什么东东？
 
-  ![image-20201021204704469](assets/image-20201021204704469.png)
+  ![image-20201021204704469](README.assets/image-20201021204704469-1603364887607.png)
 
-  ![image-20201021204801976](assets/image-20201021204801976.png)
+  ![image-20201021204801976](README.assets/image-20201021204801976-1603364887607.png)
 
 - 常用的Route Predicate
 
-  ![image-20201021204837563](assets/image-20201021204837563.png)
+  ![image-20201021204837563](README.assets/image-20201021204837563-1603364887607.png)
 
   - After Route Predicate
 
-    ![image-20201021205251008](assets/image-20201021205251008.png)
+    ![image-20201021205251008](README.assets/image-20201021205251008-1603364887607.png)
 
     ```java
        ZonedDateTime zonedDateTime = ZonedDateTime.now();
        System.out.println(zonedDateTime);
     ```
 
-    ![image-20201021205347012](assets/image-20201021205347012.png)
+    ![image-20201021205347012](README.assets/image-20201021205347012-1603364887607.png)
 
     YML
 
@@ -4417,7 +4417,7 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
   - Cookie Route Predicate
 
-    ![image-20201021210232764](assets/image-20201021210232764.png)
+    ![image-20201021210232764](README.assets/image-20201021210232764-1603364887607.png)
 
     - 不带cookies访问
 
@@ -4433,11 +4433,11 @@ https://learn.hashicorp.com/consul/getting-started/install.html
        Cookie=username,atguigu    #并且Cookie是username=zhangshuai才能访问
       ```
 
-      ![image-20201021205954389](assets/image-20201021205954389.png)
+      ![image-20201021205954389](README.assets/image-20201021205954389-1603364887607.png)
 
   - Header Route Predicate
 
-    ![image-20201021210316037](assets/image-20201021210316037.png)
+    ![image-20201021210316037](README.assets/image-20201021210316037-1603364887608.png)
 
     YML
 
@@ -4445,9 +4445,9 @@ https://learn.hashicorp.com/consul/getting-started/install.html
     - Header=X-Request-Id, \d+   #请求头中要有X-Request-Id属性并且值为整数的正则表达式
     ```
 
-    ![image-20201021210412198](assets/image-20201021210412198.png)
+    ![image-20201021210412198](README.assets/image-20201021210412198-1603364887608.png)
 
-    ![image-20201021210443096](assets/image-20201021210443096.png)
+    ![image-20201021210443096](README.assets/image-20201021210443096-1603364887608.png)
 
   - Host Route Predicate
       YML
@@ -4527,7 +4527,7 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
 - 是什么
 
-  ![image-20201021211346007](assets/image-20201021211346007.png)
+  ![image-20201021211346007](README.assets/image-20201021211346007-1603364887608.png)
 
 - Spring Cloud Gateway的Filter 
 
@@ -4540,11 +4540,11 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
     - GatewayFilter(单一)
 
-      ![image-20201021211523648](assets/image-20201021211523648.png)
+      ![image-20201021211523648](README.assets/image-20201021211523648-1603364887608.png)
 
     - GlobalFilter(全局)
 
-      ![image-20201021211559710](assets/image-20201021211559710.png)
+      ![image-20201021211559710](README.assets/image-20201021211559710-1603364887608.png)
 
 - 常用的GatewayFilter
 
@@ -4552,7 +4552,7 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
     YML
 
-    ![image-20201021211702280](assets/image-20201021211702280.png)
+    ![image-20201021211702280](README.assets/image-20201021211702280-1603364887608.png)
 
   -  省略
 
@@ -4614,7 +4614,7 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
       - 启动
 
-        ![image-20201021212150043](assets/image-20201021212150043.png)
+        ![image-20201021212150043](README.assets/image-20201021212150043-1603364887608.png)
 
       - 正确 http://localhost:9527/payment/lb?uname=z3
 
@@ -4626,15 +4626,15 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
 - 分布式系统面临的配置问题
 
-  ![image-20201022113204260](assets/image-20201022113204260.png)
+  ![image-20201022113204260](README.assets/image-20201022113204260-1603364887608.png)
 
   
 
 - 是什么
 
-  ![image-20201022113305196](assets/image-20201022113305196.png)
+  ![image-20201022113305196](README.assets/image-20201022113305196-1603364887608.png)
 
-  ![image-20201022113348525](assets/image-20201022113348525.png)
+  ![image-20201022113348525](README.assets/image-20201022113348525-1603364887609.png)
 
 - 能干嘛
 
@@ -4650,7 +4650,7 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
 - 官网
 
-  ![image-20201022113659544](assets/image-20201022113659544.png)
+  ![image-20201022113659544](README.assets/image-20201022113659544-1603364887609.png)
 
   https://cloud.spring.io/spring-cloud-static/spring-cloud-config/2.2.1.RELEASE/reference/html/
 
@@ -4662,14 +4662,14 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
 - 本地硬盘上新建git仓库并clone
 
-  ![image-20201022114320028](assets/image-20201022114320028.png)
+  ![image-20201022114320028](README.assets/image-20201022114320028-1603364887609.png)
 
   - 本地地址：D:\44\SpringCloud2020
   - git命令（ git clone  xxx）
 
 - 此时在本地D盘符下D:\44\SpringCloud2020\springcloud-config
 
-  ![image-20201022114517147](assets/image-20201022114517147.png)
+  ![image-20201022114517147](README.assets/image-20201022114517147-1603364887609.png)
 
   - 表示多个环境的配置文件
   - 保存格式必须为UTF-8
@@ -4793,13 +4793,13 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
   - http://config-3344.com:3344/main/config-dev.yml
 
-    ![image-20201022134241246](assets/image-20201022134241246.png)
+    ![image-20201022134241246](README.assets/image-20201022134241246-1603364887609.png)
 
 - 配置读取规则
 
   - 官网
 
-    ![image-20201022134458276](assets/image-20201022134458276.png)
+    ![image-20201022134458276](README.assets/image-20201022134458276-1603364887609.png)
 
   - /{label}/{application}-{profile}.yml（最推荐使用这种方式）
 
@@ -4830,7 +4830,7 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
   - 重要配置细节总结
 
-    ![image-20201022135357662](assets/image-20201022135357662.png)
+    ![image-20201022135357662](README.assets/image-20201022135357662-1603364887609.png)
 
 - 成功实现了用SpringCloud Config 通过GitHub获取配置信息
 
@@ -4869,7 +4869,7 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
     说明
 
-    ![image-20201022141621034](assets/image-20201022141621034.png)
+    ![image-20201022141621034](README.assets/image-20201022141621034-1603364887609.png)
 
 - 修改config-dev.yml配置并提交到GitHub中，比如加个变量age或者版本号version
 
@@ -5038,13 +5038,13 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
 - 是什么
 
-  ![image-20201022150336523](assets/image-20201022150336523.png)
+  ![image-20201022150336523](README.assets/image-20201022150336523-1603364887609.png)
 
   Bus支持两种消息代理：RabbitMQ和Kafka
 
 - 能干嘛
 
-  ![image-20201022150425053](assets/image-20201022150425053.png)
+  ![image-20201022150425053](README.assets/image-20201022150425053-1603364887609.png)
 
 - 为何被称为总线
 
@@ -5058,11 +5058,11 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
   - 步骤
 
-    ![image-20201022150858933](assets/image-20201022150858933.png)
+    ![image-20201022150858933](README.assets/image-20201022150858933-1603364887609.png)
 
-    ![image-20201022150915584](assets/image-20201022150915584.png)
+    ![image-20201022150915584](README.assets/image-20201022150915584-1603364887610.png)
 
-    ![image-20201022150941491](assets/image-20201022150941491.png)
+    ![image-20201022150941491](README.assets/image-20201022150941491-1603364887610.png)
 
 - 安装RabbitMQ，下载地址
 
@@ -5070,23 +5070,23 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
   - 步骤
 
-    ![image-20201022151003146](assets/image-20201022151003146.png)
+    ![image-20201022151003146](README.assets/image-20201022151003146-1603364887610.png)
 
 - 进入RabbitMQ安装目录下的sbin目录
     如例我自己本机
     D:\scmq\rabbitmq_server-3.7.14\sbin
 
-  ![image-20201022151026176](assets/image-20201022151026176.png)
+  ![image-20201022151026176](README.assets/image-20201022151026176-1603364887610.png)
 
 - 输入以下命令启动管理功能
 
   rabbitmq-plugins enable rabbitmq_management
 
-  ![image-20201022151106869](assets/image-20201022151106869.png)
+  ![image-20201022151106869](README.assets/image-20201022151106869-1603364887610.png)
 
   可视化插件
 
-  ![image-20201022151124833](assets/image-20201022151124833.png)
+  ![image-20201022151124833](README.assets/image-20201022151124833-1603364887610.png)
 
 - 访问地址查看是否安装成功 http://localhost:15672/
 
@@ -5243,13 +5243,13 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
   -  利用消息总线触发一个客户端/bus/refresh,而刷新所有客户端的配置
 
-    ![image-20201022153933482](assets/image-20201022153933482.png)
+    ![image-20201022153933482](README.assets/image-20201022153933482-1603364887610.png)
 
     
 
   -  利用消息总线触发一个服务端ConfigServer的/bus/refresh端点,而刷新所有客户端的配置（更加推荐）
 
-    ![image-20201022154040089](assets/image-20201022154040089.png)
+    ![image-20201022154040089](README.assets/image-20201022154040089-1603364887610.png)
 
   - 图二的架构显然更加合适，图一不适合的原因如下
 
@@ -5404,7 +5404,7 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
     - 发送Post请求
 
-      - ![image-20201022155228413](assets/image-20201022155228413.png)
+      - ![image-20201022155228413](README.assets/image-20201022155228413-1603364887610.png)
 
       - curl -X POST "http://localhost:3344/actuator/bus-refresh"    
       - 一次发送，处处生效
@@ -5446,11 +5446,11 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
   - curl -X POST "http://localhost:3344/actuator/bus-refresh/config-client:3355"
 
-    ![image-20201022161351998](assets/image-20201022161351998.png)
+    ![image-20201022161351998](README.assets/image-20201022161351998-1603364887610.png)
 
 - 通知总结All
 
-  ![image-20201022161415328](assets/image-20201022161415328.png)
+  ![image-20201022161415328](README.assets/image-20201022161415328-1603364887610.png)
 
 # 15.SpringCloud Stream消息驱动
 
@@ -5468,7 +5468,7 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
     - https://spring.io/projects/spring-cloud-stream#overview
 
-      ![image-20201022162517170](assets/image-20201022162517170.png)
+      ![image-20201022162517170](README.assets/image-20201022162517170-1603364887611.png)
 
       ![image-20201022162504175](README.assets/image-20201022162504175.png)
 
@@ -5482,7 +5482,7 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
   - 标准MQ
 
-    ![image-20201022170922544](assets/image-20201022170922544.png)  
+    ![image-20201022170922544](README.assets/image-20201022170922544-1603364887611.png)  
 
     - 生产者/消费者之间靠消息媒介传递信息内容
       Message
@@ -5493,25 +5493,25 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
   - 为什么用Cloud Stream
 
-    ![image-20201022171404716](assets/image-20201022171404716.png)
+    ![image-20201022171404716](README.assets/image-20201022171404716-1603364887611.png)
 
-     ![image-20201022171429954](assets/image-20201022171429954.png)
+     ![image-20201022171429954](README.assets/image-20201022171429954-1603364887611.png)
 
-    ![image-20201022171507900](assets/image-20201022171507900.png)       
+    ![image-20201022171507900](README.assets/image-20201022171507900-1603364887612.png)       
 
     - stream凭什么可以统一底层差异
 
-      ![image-20201022171615940](assets/image-20201022171615940.png)
+      ![image-20201022171615940](README.assets/image-20201022171615940-1603364887612.png)
 
-      ![image-20201022171703490](assets/image-20201022171703490.png)
+      ![image-20201022171703490](README.assets/image-20201022171703490-1603364887612.png)
 
     - Binder
 
-      ![image-20201022171830160](assets/image-20201022171830160.png)
+      ![image-20201022171830160](README.assets/image-20201022171830160-1603364887612.png)
 
-      ![image-20201022171908339](assets/image-20201022171908339.png)
+      ![image-20201022171908339](README.assets/image-20201022171908339-1603364887612.png)
 
-      ![image-20201022171938760](assets/image-20201022171938760.png)
+      ![image-20201022171938760](README.assets/image-20201022171938760-1603364887612.png)
 
       - INPUT对应于消费者
       - OUTPUT对应于生产者
@@ -5524,9 +5524,9 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
 - Spring Cloud Stream标准流程套路
 
-  ![image-20201022172117168](assets/image-20201022172117168.png)
+  ![image-20201022172117168](README.assets/image-20201022172117168-1603364887612.png)
 
-  ![image-20201022172137774](assets/image-20201022172137774.png)
+  ![image-20201022172137774](README.assets/image-20201022172137774-1603364887612.png)
 
   - Binder:很方便的连接中间件，屏蔽差异
   - Channel:通道，是队列Queue的一种抽象，在消息通讯系统中就是实现存储和转发的媒介，通过对Channel对队列进行配置
@@ -5534,7 +5534,7 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
 - 编码API和常用注解
 
-  ![image-20201022172338984](assets/image-20201022172338984.png)
+  ![image-20201022172338984](README.assets/image-20201022172338984-1603364887612.png)
 
 ## 15.2案例说明
 
@@ -6090,9 +6090,9 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
   - 生产实际案例
 
-    ![image-20201022180442265](assets/image-20201022180442265.png)
+    ![image-20201022180442265](README.assets/image-20201022180442265-1603364887612.png)
 
-    ![image-20201022180503827](assets/image-20201022180503827.png)
+    ![image-20201022180503827](README.assets/image-20201022180503827-1603364887613.png)
 
 - 分组
 
@@ -6156,6 +6156,335 @@ https://learn.hashicorp.com/consul/getting-started/install.html
   - 先启动8803，有分组属性配置，后台打出来了MQ上的消息
 
 # 16.SpringCloud Sleuth分布式请求链路追踪
+
+## 16.1概述
+
+- 为什么会出现这个技术？需要解决哪些问题？
+  问题
+
+  ![image-20201022182941408](README.assets/image-20201022182941408-1603364887613.png)
+
+  ![image-20201022183005357](README.assets/image-20201022183005357-1603364887613.png)
+
+- 是什么
+
+  - https://github.com/spring-cloud/spring-cloud-sleuth
+  - Spring Cloud Sleuth提供了一套完整的服务跟踪的解决方案
+  - 在分布式系统中提供追踪解决方案并且兼容支持了zipkin
+
+- 解决
+
+  ![image-20201022183200232](README.assets/image-20201022183200232-1603364887613.png)
+
+## 16.2搭建链路监控步骤
+
+- zipkin
+
+  - 下载
+
+    - SpringCloud从F版起已不需要自己构建Zipkin server了，只需要调用jar包即可
+    - https://dl.bintray.com/openzipkin/maven/io/zipkin/java/zipkin-server/
+    - zipkin-server-2.12.9.exec.jar
+
+  - 运行jar    
+
+    java -jar zipkin-server-2.12.9-exec.jar
+
+    ![image-20201022185254941](README.assets/image-20201022185254941-1603364887613.png)
+
+  - 运行控制台
+
+    - http://localhost:9411/zipkin/
+
+    - 术语
+
+      - 完整的调用链路    
+
+        ![image-20201022185454763](README.assets/image-20201022185454763-1603364887613.png)
+
+      - 上图what
+
+        ![image-20201022185554255](README.assets/image-20201022185554255-1603364887613.png)
+
+      - 名词解释
+                  Trace:类似于树结构的Span集合，表示一条调用链路，存在唯一标识
+                  span:表示调用链路来源，通俗的理解span就是一次请求信息
+
+- 服务提供者
+
+  - cloud-provider-payment8001
+
+  - POM
+
+    ```xml
+    <!--包含了sleuth+zipkin-->
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-zipkin</artifactId>
+    </dependency>
+    ```
+
+  - YML
+
+    ```yml
+    server:
+      port: 8001
+    
+    spring:
+      application:
+        name: cloud-payment-service
+      zipkin:
+        base-url: http://localhost:9411
+      sleuth:
+        sampler:
+        probability: 1
+      datasource:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driver-class-name: org.gjt.mm.mysql.Driver
+        url: jdbc:mysql://localhost:3306/db2019?useUnicode=true&characterEncoding=utf-8&useSSL=false
+        username: root
+        password: 123456
+    
+    mybatis:
+      mapperLocations: classpath:mapper/*.xml
+      type-aliases-package: com.xiyue.cloud.entities
+    
+    eureka:
+      client:
+        register-with-eureka: true
+        fetchRegistry: true
+        service-url:
+          #defaultZone: http://localhost:7001/eureka #单机版
+          defaultZone: http://eureka7001.com:7001/eureka,http://eureka7002.com:7002/eureka  #集群版
+      instance:
+        instance-id: payment8001
+        prefer-ip-address: true
+        lease-renewal-interval-in-seconds: 1
+        lease-expiration-duration-in-seconds: 2
+    ```
+
+  - 业务类PaymentController
+
+    ```java
+    package com.xiyue.cloud.controller;
+    
+    import com.xiyue.cloud.entities.CommonResult;
+    import com.xiyue.cloud.entities.Payment;
+    import com.xiyue.cloud.service.PaymentService;
+    import lombok.extern.slf4j.Slf4j;
+    import org.springframework.beans.factory.annotation.Value;
+    import org.springframework.cloud.client.ServiceInstance;
+    import org.springframework.cloud.client.discovery.DiscoveryClient;
+    import org.springframework.web.bind.annotation.*;
+    
+    import javax.annotation.Resource;
+    import java.util.List;
+    import java.util.concurrent.TimeUnit;
+    
+    @RestController
+    @Slf4j
+    public class PaymentController {
+    
+        @Resource
+        private PaymentService paymentService;
+        @Value("${server.port}")
+        private String serverPort;
+    
+        @Resource
+        private DiscoveryClient discoveryClient;
+    
+        @PostMapping(value = "/payment/create")
+        public CommonResult create(@RequestBody Payment payment){
+            int result = paymentService.create(payment);
+            log.info("*****插入结果："+result);
+            if (result>0){  //成功
+                return new CommonResult(200,"插入数据库成功,serverPort"+serverPort,result);
+            }else {
+                return new CommonResult(444,"插入数据库失败",null);
+            }
+        }
+    
+        @GetMapping(value = "/payment/get/{id}")
+        public CommonResult getPaymentById(@PathVariable("id") Long id){
+            Payment payment = paymentService.getPaymentById(id);
+            log.info("*****查询结果："+payment);
+            if (payment!=null){  //说明有数据，能查询成功
+                return new CommonResult(200,"查询成功,serverPort"+serverPort,payment);
+            }else {
+                return new CommonResult(444,"没有对应记录，查询ID："+id,null);
+            }
+        }
+    
+    
+    
+        @GetMapping(value = "/payment/discovery")
+        public Object discovery(){
+            List<String> services = discoveryClient.getServices();
+            for (String element : services) {
+                log.info("***** element:"+element);
+            }
+            List<ServiceInstance> instances = discoveryClient.getInstances("CLOUD-PAYMENT-SERVICE");
+            for (ServiceInstance instance : instances) {
+                log.info(instance.getServiceId()+"\t"+instance.getHost()+"\t"+instance.getPort()+"\t"+instance.getUri());
+            }
+            return this.discoveryClient;
+        }
+    
+        @GetMapping(value = "/payment/lb")
+        public String getPaymentLB(){
+            return serverPort;
+        }
+    
+        @GetMapping(value = "/payment/feign/timeout")
+        public String paymentFeignTimeout(){
+            try { TimeUnit.SECONDS.sleep(3); }catch (Exception e) {e.printStackTrace();}
+            return serverPort;
+        }
+    
+        @GetMapping("/payment/zipkin")
+        public String paymentZipkin()
+        {
+            return "hi ,i'am paymentzipkin server fall back，welcome to atguigu，O(∩_∩)O哈哈~";
+        }
+    }
+    ```
+
+- 服务消费者（调用方）
+
+  - cloud-consumer-order80
+
+  - POM
+
+    ```xml
+    <!--包含了sleuth+zipkin-->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-zipkin</artifactId>
+            </dependency>
+    ```
+
+  - YML
+
+    ```yml
+    server:
+      port: 80
+    
+    spring:
+      application:
+        name: cloud-order-service
+      zipkin:
+        base-url: http://localhost:9411
+      sleuth:
+        sampler:
+          probability: 1
+    
+    eureka:
+      client:
+        register-with-eureka: true
+        fetchRegistry: true
+        service-url:
+          #defaultZone: http://localhost:7001/eureka
+          defaultZone: http://eureka7001.com:7001/eureka,http://eureka7002.com:7002/eureka  #集群版
+    ```
+
+  - 业务类OrderController
+
+    ```java
+    package com.xiyue.cloud.controller;
+    
+    import com.xiyue.cloud.entities.CommonResult;
+    import com.xiyue.cloud.entities.Payment;
+    import com.xiyue.cloud.lb.LoadBalancer;
+    import lombok.extern.slf4j.Slf4j;
+    import org.springframework.cloud.client.ServiceInstance;
+    import org.springframework.cloud.client.discovery.DiscoveryClient;
+    import org.springframework.http.ResponseEntity;
+    import org.springframework.web.bind.annotation.GetMapping;
+    import org.springframework.web.bind.annotation.PathVariable;
+    import org.springframework.web.bind.annotation.RestController;
+    import org.springframework.web.client.RestTemplate;
+    
+    import javax.annotation.Resource;
+    import java.net.URI;
+    import java.util.List;
+    
+    @RestController
+    @Slf4j
+    public class OrderController {
+    
+        // public static final String PAYMENT_URL = "http://localhost:8001";
+        public static final String PAYMENT_URL = "http://CLOUD-PAYMENT-SERVICE";
+    
+        @Resource
+        private RestTemplate restTemplate;
+    
+        @Resource
+        private LoadBalancer loadBalancer;
+    
+        @Resource
+        private DiscoveryClient discoveryClient;
+    
+        @GetMapping("/consumer/payment/create")
+        public CommonResult<Payment>   create( Payment payment){
+            return restTemplate.postForObject(PAYMENT_URL+"/payment/create",payment,CommonResult.class);  //写操作
+        }
+    
+        @GetMapping("/consumer/payment/get/{id}")
+        public CommonResult<Payment> getPayment(@PathVariable("id") Long id){
+            return restTemplate.getForObject(PAYMENT_URL+"/payment/get/"+id,CommonResult.class);
+        }
+    
+        @GetMapping("/consumer/payment/getForEntity/{id}")
+        public CommonResult<Payment> getPayment2(@PathVariable("id") Long id){
+            ResponseEntity<CommonResult> entity = restTemplate.getForEntity(PAYMENT_URL+"/payment/get/"+id,CommonResult.class);
+            if (entity.getStatusCode().is2xxSuccessful()){
+                //  log.info(entity.getStatusCode()+"\t"+entity.getHeaders());
+                return entity.getBody();
+            }else {
+                return new CommonResult<>(444,"操作失败");
+            }
+        }
+    
+        @GetMapping(value = "/consumer/payment/lb")
+        public String getPaymentLB(){
+            List<ServiceInstance> instances = discoveryClient.getInstances("CLOUD-PAYMENT-SERVICE");
+            if (instances == null || instances.size() <= 0){
+                return null;
+            }
+            ServiceInstance serviceInstance = loadBalancer.instances(instances);
+            URI uri = serviceInstance.getUri();
+            return restTemplate.getForObject(uri+"/payment/lb",String.class);
+        }
+    
+        // ====================> zipkin+sleuth
+        @GetMapping("/consumer/payment/zipkin")
+        public String paymentZipkin()
+        {
+            String result = restTemplate.getForObject("http://localhost:8001"+"/payment/zipkin/", String.class);
+            return result;
+        }
+    }
+    ```
+
+- 依次启动eureka7001/8001/80
+
+  80调用8001几次测试下
+
+- 打开浏览器访问:http:localhost:9411
+
+  - 会出现以下界面
+
+    ![image-20201022194016924](assets/image-20201022194016924.png)
+
+    查看
+
+    ![image-20201022194141342](assets/image-20201022194141342.png)
+
+  - 查看依赖关系
+
+  -  原理
+
+    ![image-20201022194208575](assets/image-20201022194208575.png)
 
 # 17.SpringCloud Alibaba入门简介
 
