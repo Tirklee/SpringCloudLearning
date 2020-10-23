@@ -9654,6 +9654,690 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 - 新建订单Order-Module
 
   - 1.seata-order-service2001
+
+  - 2.POM
+
+    ```xml
+     
+        <dependencies>
+            <!--nacos-->
+            <dependency>
+                <groupId>com.alibaba.cloud</groupId>
+                <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+            </dependency>
+            <!--seata-->
+            <dependency>
+                <groupId>com.alibaba.cloud</groupId>
+                <artifactId>spring-cloud-starter-alibaba-seata</artifactId>
+               <!-- <exclusions>
+                    <exclusion>
+                        <artifactId>seata-all</artifactId>
+                        <groupId>io.seata</groupId>
+                    </exclusion>
+                </exclusions>-->
+            </dependency>
+            <!--<dependency>
+                <groupId>io.seata</groupId>
+                <artifactId>seata-all</artifactId>
+                <version>0.9.0</version>
+            </dependency>-->
+            <!--feign-->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-openfeign</artifactId>
+            </dependency>
+            <!--web-actuator-->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-web</artifactId>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-actuator</artifactId>
+            </dependency>
+            <!--mysql-druid-->
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>5.1.37</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>druid-spring-boot-starter</artifactId>
+                <version>1.1.10</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mybatis.spring.boot</groupId>
+                <artifactId>mybatis-spring-boot-starter</artifactId>
+                <version>2.0.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-test</artifactId>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>com.xiyue.cloud</groupId>
+                <artifactId>cloud-api-commons</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
+        </dependencies>
+    ```
+
+  - 3.YML
+
+    ```yml
+    server:
+      port: 2001
+    
+    spring:
+      application:
+        name: seata-order-service
+      cloud:
+        alibaba:
+          seata:
+            #自定义事务组名称需要与seata-server中的对应
+            tx-service-group: fsp_tx_group
+        nacos:
+          discovery:
+            server-addr: localhost:8848
+      datasource:
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://localhost:3306/seata_order
+        username: root
+        password: 123456
+    
+    feign:
+      hystrix:
+        enabled: false
+    
+    logging:
+      level:
+        io:
+          seata: info
+    
+    mybatis:
+      mapperLocations: classpath:mapper/*.xml
+    ```
+
+  - 4.file.conf
+
+    ```conf
+    transport {
+      # tcp udt unix-domain-socket
+      type = "TCP"
+      #NIO NATIVE
+      server = "NIO"
+      #enable heartbeat
+      heartbeat = true
+      #thread factory for netty
+      thread-factory {
+        boss-thread-prefix = "NettyBoss"
+        worker-thread-prefix = "NettyServerNIOWorker"
+        server-executor-thread-prefix = "NettyServerBizHandler"
+        share-boss-worker = false
+        client-selector-thread-prefix = "NettyClientSelector"
+        client-selector-thread-size = 1
+        client-worker-thread-prefix = "NettyClientWorkerThread"
+        # netty boss thread size,will not be used for UDT
+        boss-thread-size = 1
+        #auto default pin or 8
+        worker-thread-size = 8
+      }
+      shutdown {
+        # when destroy server, wait seconds
+        wait = 3
+      }
+      serialization = "seata"
+      compressor = "none"
+    }
+     
+    service {
+     
+      vgroup_mapping.fsp_tx_group = "default" 
+     
+      default.grouplist = "127.0.0.1:8091"
+      enableDegrade = false
+      disable = false
+      max.commit.retry.timeout = "-1"
+      max.rollback.retry.timeout = "-1"
+      disableGlobalTransaction = false
+    }
+     
+     
+    client {
+      async.commit.buffer.limit = 10000
+      lock {
+        retry.internal = 10
+        retry.times = 30
+      }
+      report.retry.count = 5
+      tm.commit.retry.count = 1
+      tm.rollback.retry.count = 1
+    }
+     
+    ## transaction log store
+    store {
+      ## store mode: file、db
+      mode = "db"
+     
+      ## file store
+      file {
+        dir = "sessionStore"
+     
+        # branch session size , if exceeded first try compress lockkey, still exceeded throws exceptions
+        max-branch-session-size = 16384
+        # globe session size , if exceeded throws exceptions
+        max-global-session-size = 512
+        # file buffer size , if exceeded allocate new buffer
+        file-write-buffer-cache-size = 16384
+        # when recover batch read size
+        session.reload.read_size = 100
+        # async, sync
+        flush-disk-mode = async
+      }
+     
+      ## database store
+      db {
+        ## the implement of javax.sql.DataSource, such as DruidDataSource(druid)/BasicDataSource(dbcp) etc.
+        datasource = "dbcp"
+        ## mysql/oracle/h2/oceanbase etc.
+        db-type = "mysql"
+        driver-class-name = "com.mysql.cj.jdbc.Driver"
+        url = "jdbc:mysql://127.0.0.1:3306/seata"
+        user = "root"
+        password = "123456"
+        min-conn = 1
+        max-conn = 3
+        global.table = "global_table"
+        branch.table = "branch_table"
+        lock-table = "lock_table"
+        query-limit = 100
+      }
+    }
+    lock {
+      ## the lock store mode: local、remote
+      mode = "remote"
+     
+      local {
+        ## store locks in user's database
+      }
+     
+      remote {
+        ## store locks in the seata's server
+      }
+    }
+    recovery {
+      #schedule committing retry period in milliseconds
+      committing-retry-period = 1000
+      #schedule asyn committing retry period in milliseconds
+      asyn-committing-retry-period = 1000
+      #schedule rollbacking retry period in milliseconds
+      rollbacking-retry-period = 1000
+      #schedule timeout retry period in milliseconds
+      timeout-retry-period = 1000
+    }
+     
+    transaction {
+      undo.data.validation = true
+      undo.log.serialization = "jackson"
+      undo.log.save.days = 7
+      #schedule delete expired undo_log in milliseconds
+      undo.log.delete.period = 86400000
+      undo.log.table = "undo_log"
+    }
+     
+    ## metrics settings
+    metrics {
+      enabled = false
+      registry-type = "compact"
+      # multi exporters use comma divided
+      exporter-list = "prometheus"
+      exporter-prometheus-port = 9898
+    }
+     
+    support {
+      ## spring
+      spring {
+        # auto proxy the DataSource bean
+        datasource.autoproxy = false
+      }
+    }
+    ```
+
+  - 5.registry.conf
+
+    ```conf
+    registry {
+      # file 、nacos 、eureka、redis、zk、consul、etcd3、sofa
+      type = "nacos"
+     
+      nacos {
+        serverAddr = "localhost:8848"
+        namespace = ""
+        cluster = "default"
+      }
+      eureka {
+        serviceUrl = "http://localhost:8761/eureka"
+        application = "default"
+        weight = "1"
+      }
+      redis {
+        serverAddr = "localhost:6379"
+        db = "0"
+      }
+      zk {
+        cluster = "default"
+        serverAddr = "127.0.0.1:2181"
+        session.timeout = 6000
+        connect.timeout = 2000
+      }
+      consul {
+        cluster = "default"
+        serverAddr = "127.0.0.1:8500"
+      }
+      etcd3 {
+        cluster = "default"
+        serverAddr = "http://localhost:2379"
+      }
+      sofa {
+        serverAddr = "127.0.0.1:9603"
+        application = "default"
+        region = "DEFAULT_ZONE"
+        datacenter = "DefaultDataCenter"
+        cluster = "default"
+        group = "SEATA_GROUP"
+        addressWaitTime = "3000"
+      }
+      file {
+        name = "file.conf"
+      }
+    }
+     
+    config {
+      # file、nacos 、apollo、zk、consul、etcd3
+      type = "file"
+     
+      nacos {
+        serverAddr = "localhost"
+        namespace = ""
+      }
+      consul {
+        serverAddr = "127.0.0.1:8500"
+      }
+      apollo {
+        app.id = "seata-server"
+        apollo.meta = "http://192.168.1.204:8801"
+      }
+      zk {
+        serverAddr = "127.0.0.1:2181"
+        session.timeout = 6000
+        connect.timeout = 2000
+      }
+      etcd3 {
+        serverAddr = "http://localhost:2379"
+      }
+      file {
+        name = "file.conf"
+      }
+    }
+    ```
+
+  - 6.domain
+
+    - CommonResult
+
+      ```java
+      package com.xiyue.cloud.domain;
+      
+      import lombok.AllArgsConstructor;
+      import lombok.Data;
+      import lombok.NoArgsConstructor;
+      
+      
+      @Data
+      @AllArgsConstructor
+      @NoArgsConstructor
+      public class CommonResult<T>
+      {
+          private Integer code;
+          private String  message;
+          private T       data;
+      
+          public CommonResult(Integer code, String message)
+          {
+              this(code,message,null);
+          }
+      }
+      ```
+
+    - Order
+
+      ```java
+      package com.xiyue.cloud.domain;
+      
+      import lombok.AllArgsConstructor;
+      import lombok.Data;
+      import lombok.NoArgsConstructor;
+      
+      import java.math.BigDecimal;
+      
+      
+      @Data
+      @AllArgsConstructor
+      @NoArgsConstructor
+      public class Order
+      {
+          private Long id;
+      
+          private Long userId;
+      
+          private Long productId;
+      
+          private Integer count;
+      
+          private BigDecimal money;
+      
+          private Integer status; //订单状态：0：创建中；1：已完结
+      }
+      ```
+
+  - 7.Dao接口及实现
+
+    - OrderDao
+
+      ```java
+      package com.xiyue.cloud.dao;
+      
+      import com.xiyue.cloud.domain.Order;
+      import org.apache.ibatis.annotations.Mapper;
+      import org.apache.ibatis.annotations.Param;
+      
+      @Mapper
+      public interface OrderDao
+      {
+          //新建订单
+          void create(Order order);
+      
+          //修改订单状态，从零改为1
+          void update(@Param("userId") Long userId,@Param("status") Integer status);
+      }
+      ```
+
+    - resources文件夹下新建mapper文件夹后添加(OrderMapper.xml)
+
+      ```xml
+      <?xml version="1.0" encoding="UTF-8" ?>
+      <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+      
+      <mapper namespace="com.xiyue.cloud.dao.OrderDao">
+      
+          <resultMap id="BaseResultMap" type="com.xiyue.cloud.domain.Order">
+              <id column="id" property="id" jdbcType="BIGINT"/>
+              <result column="user_id" property="userId" jdbcType="BIGINT"/>
+              <result column="product_id" property="productId" jdbcType="BIGINT"/>
+              <result column="count" property="count" jdbcType="INTEGER"/>
+              <result column="money" property="money" jdbcType="DECIMAL"/>
+              <result column="status" property="status" jdbcType="INTEGER"/>
+          </resultMap>
+      
+          <insert id="create">
+              insert into t_order (id,user_id,product_id,count,money,status)
+              values (null,#{userId},#{productId},#{count},#{money},0);
+          </insert>
+      
+      
+          <update id="update">
+              update t_order set status = 1
+              where user_id=#{userId} and status = #{status};
+          </update>
+      
+      </mapper>
+      ```
+
+  - 8.Service接口及实现
+
+    - OrderService
+
+      ```java
+      package com.xiyue.cloud.service;
+      
+      
+      import com.xiyue.cloud.domain.Order;
+      
+      public interface OrderService{
+          void create(Order order);
+      }
+      ```
+
+      OrderServiceImpl
+
+      ```java
+      package com.xiyue.cloud.service.impl;
+      
+      import com.xiyue.cloud.dao.OrderDao;
+      import com.xiyue.cloud.domain.Order;
+      import com.xiyue.cloud.service.AccountService;
+      import com.xiyue.cloud.service.OrderService;
+      import com.xiyue.cloud.service.StorageService;
+      import io.seata.spring.annotation.GlobalTransactional;
+      import lombok.extern.slf4j.Slf4j;
+      import org.springframework.stereotype.Service;
+      
+      import javax.annotation.Resource;
+      
+      
+      @Service
+      @Slf4j
+      public class OrderServiceImpl implements OrderService
+      {
+          @Resource
+          private OrderDao orderDao;
+          @Resource
+          private StorageService storageService;
+          @Resource
+          private AccountService accountService;
+      
+          /**
+           * 创建订单->调用库存服务扣减库存->调用账户服务扣减账户余额->修改订单状态
+           */
+      
+          @Override
+          @GlobalTransactional(name = "fsp-create-order",rollbackFor = Exception.class)
+          public void create(Order order){
+              log.info("----->开始新建订单");
+              //新建订单
+              orderDao.create(order);
+      
+              //扣减库存
+              log.info("----->订单微服务开始调用库存，做扣减Count");
+              storageService.decrease(order.getProductId(),order.getCount());
+              log.info("----->订单微服务开始调用库存，做扣减end");
+      
+              //扣减账户
+              log.info("----->订单微服务开始调用账户，做扣减Money");
+              accountService.decrease(order.getUserId(),order.getMoney());
+              log.info("----->订单微服务开始调用账户，做扣减end");
+      
+      
+              //修改订单状态，从零到1代表已经完成
+              log.info("----->修改订单状态开始");
+              orderDao.update(order.getUserId(),0);
+              log.info("----->修改订单状态结束");
+      
+              log.info("----->下订单结束了");
+      
+          }
+      }
+      ```
+
+    - StorageService
+
+      ```java
+      package com.xiyue.cloud.service;
+      
+      import com.xiyue.cloud.domain.CommonResult;
+      import org.springframework.cloud.openfeign.FeignClient;
+      import org.springframework.web.bind.annotation.PostMapping;
+      import org.springframework.web.bind.annotation.RequestParam;
+      
+      
+      @FeignClient(value = "seata-storage-service")
+      public interface StorageService{
+          @PostMapping(value = "/storage/decrease")
+          CommonResult decrease(@RequestParam("productId") Long productId, @RequestParam("count") Integer count);
+      }
+      ```
+
+    - AccountService
+
+      ```java
+      package com.xiyue.cloud.service;
+      
+      import com.xiyue.cloud.domain.CommonResult;
+      import org.springframework.cloud.openfeign.FeignClient;
+      import org.springframework.web.bind.annotation.PostMapping;
+      import org.springframework.web.bind.annotation.RequestParam;
+      
+      import java.math.BigDecimal;
+      
+      @FeignClient(value = "seata-account-service")
+      public interface AccountService{
+          @PostMapping(value = "/account/decrease")
+          CommonResult decrease(@RequestParam("userId") Long userId, @RequestParam("money") BigDecimal money);
+      }
+      ```
+
+  - 9.Controller
+
+    ```java
+    package com.xiyue.cloud.controller;
+    
+    
+    import com.xiyue.cloud.domain.CommonResult;
+    import com.xiyue.cloud.domain.Order;
+    import com.xiyue.cloud.service.OrderService;
+    import org.springframework.web.bind.annotation.GetMapping;
+    import org.springframework.web.bind.annotation.RestController;
+    
+    import javax.annotation.Resource;
+    
+    
+    @RestController
+    public class OrderController{
+        @Resource
+        private OrderService orderService;
+    
+    
+        @GetMapping("/order/create")
+        public CommonResult create(Order order)
+        {
+            orderService.create(order);
+            return new CommonResult(200,"订单创建成功");
+        }
+    }
+    ```
+
+  - 10.Config配置
+
+    - MyBatisConfig
+
+      ```java
+      package com.xiyue.cloud.config;
+      
+      import org.mybatis.spring.annotation.MapperScan;
+      import org.springframework.context.annotation.Configuration;
+      
+      
+      @Configuration
+      @MapperScan({"com.xiyue.cloud.dao"})
+      public class MyBatisConfig {
+      
+      }
+      ```
+
+    - DataSourceProxyConfig
+
+      ```java
+      package com.xiyue.cloud.config;
+      
+      import com.alibaba.druid.pool.DruidDataSource;
+      import io.seata.rm.datasource.DataSourceProxy;
+      import org.apache.ibatis.session.SqlSessionFactory;
+      import org.mybatis.spring.SqlSessionFactoryBean;
+      import org.mybatis.spring.transaction.SpringManagedTransactionFactory;
+      import org.springframework.beans.factory.annotation.Value;
+      import org.springframework.boot.context.properties.ConfigurationProperties;
+      import org.springframework.context.annotation.Bean;
+      import org.springframework.context.annotation.Configuration;
+      import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+      import javax.sql.DataSource;
+      
+      
+      @Configuration
+      public class DataSourceProxyConfig {
+      
+      
+          @Value("${mybatis.mapperLocations}")
+          private String mapperLocations;
+      
+      
+          @Bean
+          @ConfigurationProperties(prefix = "spring.datasource")
+          public DataSource druidDataSource(){
+              return new DruidDataSource();
+          }
+      
+      
+          @Bean
+          public DataSourceProxy dataSourceProxy(DataSource dataSource) {
+              return new DataSourceProxy(dataSource);
+          }
+      
+      
+          @Bean
+          public SqlSessionFactory sqlSessionFactoryBean(DataSourceProxy dataSourceProxy) throws Exception {
+              SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
+              sqlSessionFactoryBean.setDataSource(dataSourceProxy);
+              sqlSessionFactoryBean.setMapperLocations(new PathMatchingResourcePatternResolver().getResources(mapperLocations));
+              sqlSessionFactoryBean.setTransactionFactory(new SpringManagedTransactionFactory());
+              return sqlSessionFactoryBean.getObject();
+          }
+      
+      }
+      ```
+
+  - 11.主启动
+
+    ```java
+    package com.xiyue.cloud;
+    
+    import org.springframework.boot.SpringApplication;
+    import org.springframework.boot.autoconfigure.SpringBootApplication;
+    import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+    import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+    import org.springframework.cloud.openfeign.EnableFeignClients;
+    
+    @EnableDiscoveryClient
+    @EnableFeignClients
+    @SpringBootApplication(exclude = DataSourceAutoConfiguration.class)//取消数据源自动创建的配置
+    public class SeataOrderMainApp2001{
+    
+        public static void main(String[] args)
+        {
+            SpringApplication.run(SeataOrderMainApp2001.class, args);
+        }
+    }
+    ```
+
+- 新建库存Storage-Module
+
+  - 1.seata-order-service2002
   - 2.POM
   - 3.YML
   - 4.file.conf
@@ -9664,10 +10348,6 @@ https://learn.hashicorp.com/consul/getting-started/install.html
   - 9.Controller
   - 10.Config配置
   - 11.主启动
-
-- 新建库存Storage-Module
-
-  
 
 - 新建账户Account-Module
 
