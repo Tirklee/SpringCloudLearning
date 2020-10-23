@@ -9365,3 +9365,314 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
 # 20.SpringCloud Alibaba Seata处理分布式事务
 
+## 20.1分布式事务问题
+
+- 分布式前
+
+  - 单机单库没这个问题
+  - 从1：1 -> 1:N -> N: N
+
+- 分布式之后
+
+  ![image-20201023125142815](assets/image-20201023125142815.png)
+
+  ![image-20201023125213668](assets/image-20201023125213668.png)
+
+- 一句话
+
+  一次业务操作需要跨多个数据源或需要跨多个系统进行远程调用，就会产生分布式事务问题
+
+## 20.2Seata简介
+
+- 是什么
+
+  - Seata是一款开源的分布式事务解决方案，致力于在微服务架构下提供高性能和简单易用的分布式事务服务
+  - 官网地址http://seata.io/zh-cn/
+
+- 能干嘛
+
+  - 一个典型的分布式事务过程
+
+    - 分布式事务处理过程的-ID+三组件模型
+
+      - Transaction ID XID:全局唯一的事务ID
+      - 3组件概念
+        - Transaction Coordinator(TC) :事务协调器，维护全局事务的运行状态，负责协调并驱动全局事务的提交或回滚;
+        - Transaction  Manager(TM) : 控制全局事务的边界，负责开启一个全局事务，并最终发起全局提交或全局回滚的决议;
+        - Resource Manager(RM) :控制分支事务，负责分支注册，状态汇报，并接收事务协调器的指令，驱动分支（本地）事务的提交和回滚；
+
+    - 处理过程
+
+      ![image-20201023125707698](README.assets/image-20201023125707698-1603429046948.png)
+
+      ![image-20201023125720158](README.assets/image-20201023125720158-1603429045412.png)
+
+- 去哪下
+
+  发布说明:https://github.com/seata/seata/releases
+
+- 怎么玩
+
+  - Spring 本地@Transactional
+
+  - 全局@GlobalTransactional
+
+    - SEATA的分布式交易解决方案
+
+      ![image-20201023130122660](README.assets/image-20201023130122660-1603429289362.png)
+
+## 20.3Seata-Server安装
+
+- 1.官网地址 http://seata.io/zh-cn/
+
+- 2.下载版本
+
+- 3.seata-server-0.9.0.zip解压到指定目录并修改conf目录下的file.conf配置文件
+
+  - 先备份原始file.conf文件
+
+  - 主要修改：自定义事务组名称+事务日志存储模式为db+数据库连接信息
+
+  - file.conf
+
+    - service模块
+
+      ```conf
+      vgroup_mapping.my_test_tx_group = "fsp_tx_group"
+      ```
+
+    - store模块
+
+      ```conf
+      mode = "db"
+       
+        url = "jdbc:mysql://127.0.0.1:3306/seata"
+        user = "root"
+        password = "你自己的密码"
+      ```
+
+- 4.mysql5.7数据库新建库seata
+
+- 5.在seata库里建表
+
+  - 建表db_store.sql在\seata-server-0.9.0\seata\conf目录里面db_store.sql
+
+  - SQL
+
+    ```mysql
+    -- the table to store GlobalSession data
+    drop table if exists `global_table`;
+    create table `global_table` (
+      `xid` varchar(128)  not null,
+      `transaction_id` bigint,
+      `status` tinyint not null,
+      `application_id` varchar(32),
+      `transaction_service_group` varchar(32),
+      `transaction_name` varchar(128),
+      `timeout` int,
+      `begin_time` bigint,
+      `application_data` varchar(2000),
+      `gmt_create` datetime,
+      `gmt_modified` datetime,
+      primary key (`xid`),
+      key `idx_gmt_modified_status` (`gmt_modified`, `status`),
+      key `idx_transaction_id` (`transaction_id`)
+    );
+     
+    -- the table to store BranchSession data
+    drop table if exists `branch_table`;
+    create table `branch_table` (
+      `branch_id` bigint not null,
+      `xid` varchar(128) not null,
+      `transaction_id` bigint ,
+      `resource_group_id` varchar(32),
+      `resource_id` varchar(256) ,
+      `lock_key` varchar(128) ,
+      `branch_type` varchar(8) ,
+      `status` tinyint,
+      `client_id` varchar(64),
+      `application_data` varchar(2000),
+      `gmt_create` datetime,
+      `gmt_modified` datetime,
+      primary key (`branch_id`),
+      key `idx_xid` (`xid`)
+    );
+     
+    -- the table to store lock data
+    drop table if exists `lock_table`;
+    create table `lock_table` (
+      `row_key` varchar(128) not null,
+      `xid` varchar(96),
+      `transaction_id` long ,
+      `branch_id` long,
+      `resource_id` varchar(256) ,
+      `table_name` varchar(32) ,
+      `pk` varchar(36) ,
+      `gmt_create` datetime ,
+      `gmt_modified` datetime,
+      primary key(`row_key`)
+    );
+    ```
+
+- 6.修改seata-server-0.9.0\seata\conf目录下的registry.conf配置文件
+
+  ```conf
+  registry {
+    # file 、nacos 、eureka、redis、zk、consul、etcd3、sofa
+    type = "nacos"
+   
+    nacos {
+      serverAddr = "localhost:8848"
+      namespace = ""
+      cluster = "default"
+    }
+  ```
+
+  目的是：指明注册中心为nacos，及修改nacos连接信息
+
+- 7.先启动Nacos端口号8848
+
+- 8.再启动seata-server
+
+  seata-server-0.9.0\seata\bin->seata-server.bat（启动时注意数据库版本 由于数据库版本驱动问题导致的启动问题请保持数据版本驱动的一致）
+
+## 20.4订单/库存/账户业务数据库准备
+
+- 以下演示都需要先启动Nacos后启动Seata，保证两个都OK
+
+  Seata没启动报错no available server to connect
+
+- 分布式事务业务说明
+
+  - 业务说明
+
+    ![image-20201023135538311](assets/image-20201023135538311.png)
+
+  - 下订单-->扣库存-->减账户（余额）
+
+- 创建业务数据库
+
+  - seata_order: 存储订单的数据库
+
+  - seata_storage:存储库存的数据库
+
+  - seata_account: 存储账户信息的数据库
+
+  - 建表SQL
+
+    ```mysql
+    CREATE DATABASE seata_order；
+     
+    CREATE DATABASE seata_storage；
+     
+    CREATE DATABASE seata_account；
+    ```
+
+- 按照上述3库分别建对应业务表
+
+  - seata_order库下建t_order表
+
+    ```mysql
+    CREATE TABLE t_order(
+        `id` BIGINT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        `user_id` BIGINT(11) DEFAULT NULL COMMENT '用户id',
+        `product_id` BIGINT(11) DEFAULT NULL COMMENT '产品id',
+        `count` INT(11) DEFAULT NULL COMMENT '数量',
+        `money` DECIMAL(11,0) DEFAULT NULL COMMENT '金额',
+        `status` INT(1) DEFAULT NULL COMMENT '订单状态：0：创建中; 1：已完结'
+    ) ENGINE=INNODB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
+     
+    SELECT * FROM t_order;
+    ```
+
+  - seata_storage库下建t_storage表
+
+    ```mysql
+    CREATE TABLE t_storage(
+        `id` BIGINT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        `product_id` BIGINT(11) DEFAULT NULL COMMENT '产品id',
+       `'total` INT(11) DEFAULT NULL COMMENT '总库存',
+        `used` INT(11) DEFAULT NULL COMMENT '已用库存',
+        `residue` INT(11) DEFAULT NULL COMMENT '剩余库存'
+    ) ENGINE=INNODB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+     
+    INSERT INTO seata_storage.t_storage(`id`,`product_id`,`total`,`used`,`residue`)
+    VALUES('1','1','100','0','100');
+     
+    SELECT * FROM t_storage;
+    ```
+
+  - seata_account库下建t_account表
+
+    ```mysql
+    CREATE TABLE t_account(
+        `id` BIGINT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT 'id',
+        `user_id` BIGINT(11) DEFAULT NULL COMMENT '用户id',
+        `total` DECIMAL(10,0) DEFAULT NULL COMMENT '总额度',
+        `used` DECIMAL(10,0) DEFAULT NULL COMMENT '已用余额',
+        `residue` DECIMAL(10,0) DEFAULT '0' COMMENT '剩余可用额度'
+    ) ENGINE=INNODB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+     
+    INSERT INTO seata_account.t_account(`id`,`user_id`,`total`,`used`,`residue`) VALUES('1','1','1000','0','1000')
+    
+    SELECT * FROM t_account;
+    ```
+
+- 按照上述3库分别建对应的回滚日志表
+
+  - 订单-库存-账户3个库下都需要建各自的回滚日志表
+
+  - \seata-server-0.9.0\seata\conf目录下的db_undo_log.sql 
+
+  - 建表SQL
+
+    ```mysql
+    drop table `undo_log`;
+    CREATE TABLE `undo_log` (
+      `id` bigint(20) NOT NULL AUTO_INCREMENT,
+      `branch_id` bigint(20) NOT NULL,
+      `xid` varchar(100) NOT NULL,
+      `context` varchar(128) NOT NULL,
+      `rollback_info` longblob NOT NULL,
+      `log_status` int(11) NOT NULL,
+      `log_created` datetime NOT NULL,
+      `log_modified` datetime NOT NULL,
+      `ext` varchar(100) DEFAULT NULL,
+      PRIMARY KEY (`id`),
+      UNIQUE KEY `ux_undo_log` (`xid`,`branch_id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+    ```
+
+- 最终效果
+
+  ![image-20201023140958687](README.assets/image-20201023140958687-1603433405229.png)
+
+## 20.5订单/库存/账户业务微服务准备
+
+- 业务需求:下订单->减库存->扣余额->改（订单）状态
+
+- 新建订单Order-Module
+
+  - 1.seata-order-service2001
+  - 2.POM
+  - 3.YML
+  - 4.file.conf
+  - 5.registry.conf
+  - 6.domain
+  - 7.Dao接口及实现
+  - 8.Service接口及实现
+  - 9.Controller
+  - 10.Config配置
+  - 11.主启动
+
+- 新建库存Storage-Module
+
+  
+
+- 新建账户Account-Module
+
+  
+
+## 20.6Test
+
+## 20.7Seata之原理简介
