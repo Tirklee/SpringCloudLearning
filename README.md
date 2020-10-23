@@ -8558,7 +8558,810 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
 ## 19.9服务熔断功能
 
+- sentinel整合ribbon+openFeign+fallback
+
+- Ribbon系列
+
+  - 启动nacos和sentinel
+
+  - 提供者9003/9004
+
+    - 新建cloudalibaba-provider-payment9003/9004
+
+    - POM
+
+      9003
+
+      ```xml
+      <?xml version="1.0" encoding="UTF-8"?>
+      <project xmlns="http://maven.apache.org/POM/4.0.0"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+          <parent>
+              <artifactId>cloud2020</artifactId>
+              <groupId>com.xiyue.cloud</groupId>
+              <version>1.0-SNAPSHOT</version>
+          </parent>
+          <modelVersion>4.0.0</modelVersion>
+      
+          <artifactId>cloudalibaba-provider-payment9003</artifactId>
+      
+          <dependencies>
+              <!--SpringCloud ailibaba nacos -->
+              <dependency>
+                  <groupId>com.alibaba.cloud</groupId>
+                  <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+              </dependency>
+              <dependency><!-- 引入自己定义的api通用包，可以使用Payment支付Entity -->
+                  <groupId>com.xiyue.cloud</groupId>
+                  <artifactId>cloud-api-commons</artifactId>
+                  <version>${project.version}</version>
+              </dependency>
+              <!-- SpringBoot整合Web组件 -->
+              <dependency>
+                  <groupId>org.springframework.boot</groupId>
+                  <artifactId>spring-boot-starter-web</artifactId>
+              </dependency>
+              <dependency>
+                  <groupId>org.springframework.boot</groupId>
+                  <artifactId>spring-boot-starter-actuator</artifactId>
+              </dependency>
+              <!--日常通用jar包配置-->
+              <dependency>
+                  <groupId>org.springframework.boot</groupId>
+                  <artifactId>spring-boot-devtools</artifactId>
+                  <scope>runtime</scope>
+                  <optional>true</optional>
+              </dependency>
+              <dependency>
+                  <groupId>org.projectlombok</groupId>
+                  <artifactId>lombok</artifactId>
+                  <optional>true</optional>
+              </dependency>
+              <dependency>
+                  <groupId>org.springframework.boot</groupId>
+                  <artifactId>spring-boot-starter-test</artifactId>
+                  <scope>test</scope>
+              </dependency>
+          </dependencies>
+      </project>
+      ```
+
+      9004
+
+      ```xml
+      <?xml version="1.0" encoding="UTF-8"?>
+      <project xmlns="http://maven.apache.org/POM/4.0.0"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+          <parent>
+              <artifactId>cloud2020</artifactId>
+              <groupId>com.xiyue.cloud</groupId>
+              <version>1.0-SNAPSHOT</version>
+          </parent>
+          <modelVersion>4.0.0</modelVersion>
+      
+          <artifactId>cloudalibaba-provider-payment9004</artifactId>
+          <dependencies>
+              <!--SpringCloud ailibaba nacos -->
+              <dependency>
+                  <groupId>com.alibaba.cloud</groupId>
+                  <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+              </dependency>
+              <dependency><!-- 引入自己定义的api通用包，可以使用Payment支付Entity -->
+                  <groupId>com.xiyue.cloud</groupId>
+                  <artifactId>cloud-api-commons</artifactId>
+                  <version>${project.version}</version>
+              </dependency>
+              <!-- SpringBoot整合Web组件 -->
+              <dependency>
+                  <groupId>org.springframework.boot</groupId>
+                  <artifactId>spring-boot-starter-web</artifactId>
+              </dependency>
+              <dependency>
+                  <groupId>org.springframework.boot</groupId>
+                  <artifactId>spring-boot-starter-actuator</artifactId>
+              </dependency>
+              <!--日常通用jar包配置-->
+              <dependency>
+                  <groupId>org.springframework.boot</groupId>
+                  <artifactId>spring-boot-devtools</artifactId>
+                  <scope>runtime</scope>
+                  <optional>true</optional>
+              </dependency>
+              <dependency>
+                  <groupId>org.projectlombok</groupId>
+                  <artifactId>lombok</artifactId>
+                  <optional>true</optional>
+              </dependency>
+              <dependency>
+                  <groupId>org.springframework.boot</groupId>
+                  <artifactId>spring-boot-starter-test</artifactId>
+                  <scope>test</scope>
+              </dependency>
+          </dependencies>
+      </project>
+      ```
+
+    - YML（application.yml）记得修改不同的端口号
+
+      9003
+
+      ```yml
+      server:
+        port: 9003
+      
+      spring:
+        application:
+          name: nacos-payment-provider
+        cloud:
+          nacos:
+            discovery:
+              server-addr: localhost:8848 #配置Nacos地址
+      
+      management:
+        endpoints:
+          web:
+            exposure:
+              include: '*'
+      ```
+
+      9004
+
+      ```yml
+      server:
+        port: 9004
+      
+      spring:
+        application:
+          name: nacos-payment-provider
+        cloud:
+          nacos:
+            discovery:
+              server-addr: localhost:8848 #配置Nacos地址
+      
+      management:
+        endpoints:
+          web:
+            exposure:
+              include: '*'
+      ```
+
+      
+
+    - 主启动
+
+      9003
+
+      ```java
+      package com.xiyue.cloud;
+      
+      import org.springframework.boot.SpringApplication;
+      import org.springframework.boot.autoconfigure.SpringBootApplication;
+      import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+      
+      
+      @SpringBootApplication
+      @EnableDiscoveryClient
+      public class PaymentMain9003
+      {
+          public static void main(String[] args) {
+              SpringApplication.run(PaymentMain9003.class, args);
+          }
+      }
+      ```
+
+      9004
+
+      ```java
+      package com.xiyue.cloud;
+      
+      import org.springframework.boot.SpringApplication;
+      import org.springframework.boot.autoconfigure.SpringBootApplication;
+      import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+      
+      
+      @SpringBootApplication
+      @EnableDiscoveryClient
+      public class PaymentMain9004
+      {
+          public static void main(String[] args) {
+              SpringApplication.run(PaymentMain9004.class, args);
+          }
+      }
+      
+      ```
+
+    - 业务类
+
+      9003与9004业务代码一样
+
+      ```java
+      package com.xiyue.cloud.controller;
+      
+      import com.xiyue.cloud.entities.CommonResult;
+      import com.xiyue.cloud.entities.Payment;
+      import org.springframework.beans.factory.annotation.Value;
+      import org.springframework.web.bind.annotation.GetMapping;
+      import org.springframework.web.bind.annotation.PathVariable;
+      import org.springframework.web.bind.annotation.RestController;
+      
+      import java.util.HashMap;
+      
+      
+      @RestController
+      public class PaymentController
+      {
+          @Value("${server.port}")
+          private String serverPort;
+      
+          public static HashMap<Long, Payment> hashMap = new HashMap<>();
+          static{
+              hashMap.put(1L,new Payment(1L,"28a8c1e3bc2742d8848569891fb42181"));
+              hashMap.put(2L,new Payment(2L,"bba8c1e3bc2742d8848569891ac32182"));
+              hashMap.put(3L,new Payment(3L,"6ua8c1e3bc2742d8848569891xt92183"));
+          }
+      
+          @GetMapping(value = "/paymentSQL/{id}")
+          public CommonResult<Payment> paymentSQL(@PathVariable("id") Long id){
+              Payment payment = hashMap.get(id);
+              CommonResult<Payment> result = new CommonResult(200,"from mysql,serverPort:  "+serverPort,payment);
+              return result;
+          }
+      
+      
+      
+      }
+      
+      
+      package com.xiyue.cloud.controller;
+      
+      import com.xiyue.cloud.entities.CommonResult;
+      import com.xiyue.cloud.entities.Payment;
+      import org.springframework.beans.factory.annotation.Value;
+      import org.springframework.web.bind.annotation.GetMapping;
+      import org.springframework.web.bind.annotation.PathVariable;
+      import org.springframework.web.bind.annotation.RestController;
+      
+      import java.util.HashMap;
+      
+      
+      @RestController
+      public class PaymentController
+      {
+          @Value("${server.port}")
+          private String serverPort;
+      
+          public static HashMap<Long, Payment> hashMap = new HashMap<>();
+          static{
+              hashMap.put(1L,new Payment(1L,"28a8c1e3bc2742d8848569891fb42181"));
+              hashMap.put(2L,new Payment(2L,"bba8c1e3bc2742d8848569891ac32182"));
+              hashMap.put(3L,new Payment(3L,"6ua8c1e3bc2742d8848569891xt92183"));
+          }
+      
+          @GetMapping(value = "/paymentSQL/{id}")
+          public CommonResult<Payment> paymentSQL(@PathVariable("id") Long id){
+              Payment payment = hashMap.get(id);
+              CommonResult<Payment> result = new CommonResult(200,"from mysql,serverPort:  "+serverPort,payment);
+              return result;
+          }
+      }
+      ```
+
+    - 测试地址http://localhost:9003/paymentSQL/1
+
+  - 消费者84
+
+    - 新建cloudalibaba-consumer-nacos-order84
+
+    - POM
+
+      ```xml
+      <?xml version="1.0" encoding="UTF-8"?>
+      <project xmlns="http://maven.apache.org/POM/4.0.0"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+          <parent>
+              <artifactId>cloud2020</artifactId>
+              <groupId>com.xiyue.cloud</groupId>
+              <version>1.0-SNAPSHOT</version>
+          </parent>
+          <modelVersion>4.0.0</modelVersion>
+      
+          <artifactId>cloudalibaba-consumer-nacos-order84</artifactId>
+          <dependencies>
+              <dependency>
+                  <groupId>org.springframework.cloud</groupId>
+                  <artifactId>spring-cloud-starter-openfeign</artifactId>
+              </dependency>
+              <dependency>
+                  <groupId>com.alibaba.cloud</groupId>
+                  <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+              </dependency>
+              <dependency>
+                  <groupId>com.alibaba.cloud</groupId>
+                  <artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
+              </dependency>
+              <dependency>
+                  <groupId>com.xiyue.cloud</groupId>
+                  <artifactId>cloud-api-commons</artifactId>
+                  <version>${project.version}</version>
+              </dependency>
+              <dependency>
+                  <groupId>org.springframework.boot</groupId>
+                  <artifactId>spring-boot-starter-web</artifactId>
+              </dependency>
+              <dependency>
+                  <groupId>org.springframework.boot</groupId>
+                  <artifactId>spring-boot-starter-actuator</artifactId>
+              </dependency>
+              <dependency>
+                  <groupId>org.springframework.boot</groupId>
+                  <artifactId>spring-boot-devtools</artifactId>
+                  <scope>runtime</scope>
+                  <optional>true</optional>
+              </dependency>
+              <dependency>
+                  <groupId>org.projectlombok</groupId>
+                  <artifactId>lombok</artifactId>
+                  <optional>true</optional>
+              </dependency>
+              <dependency>
+                  <groupId>org.springframework.boot</groupId>
+                  <artifactId>spring-boot-starter-test</artifactId>
+                  <scope>test</scope>
+              </dependency>
+          </dependencies>
+      </project>
+      ```
+
+    - YML(application.yml)
+
+      ```yml
+      server:
+        port: 84
+      
+      
+      spring:
+        application:
+          name: nacos-order-consumer
+        cloud:
+          nacos:
+            discovery:
+              server-addr: localhost:8848
+          sentinel:
+            transport:
+              dashboard: localhost:8080
+              port: 8719
+      
+      service-url:
+        nacos-user-service: http://nacos-payment-provider
+      ```
+
+    - 主启动
+
+      ```java
+      package com.xiyue.cloud;
+      
+      import org.springframework.boot.SpringApplication;
+      import org.springframework.boot.autoconfigure.SpringBootApplication;
+      import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+      import org.springframework.cloud.openfeign.EnableFeignClients;
+      
+      
+      @EnableDiscoveryClient
+      @SpringBootApplication
+      @EnableFeignClients
+      public class OrderNacosMain84
+      {
+          public static void main(String[] args) {
+              SpringApplication.run(OrderNacosMain84.class, args);
+          }
+      }
+      ```
+
+    - 业务类
+
+      ApplicationContextConfig
+
+      ```java
+      package com.xiyue.cloud.config;
+      
+      import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+      import org.springframework.context.annotation.Bean;
+      import org.springframework.context.annotation.Configuration;
+      import org.springframework.web.client.RestTemplate;
+      
+      
+      @Configuration
+      public class ApplicationContextConfig
+      {
+          @Bean
+          @LoadBalanced
+          public RestTemplate getRestTemplate()
+          {
+              return new RestTemplate();
+          }
+      }
+      ```
+
+      CircleBreakerController的全部源码
+
+      ```java
+      package com.xiyue.cloud.controller;
+      
+      import com.alibaba.csp.sentinel.annotation.SentinelResource;
+      import com.alibaba.csp.sentinel.slots.block.BlockException;
+      import com.xiyue.cloud.entities.CommonResult;
+      import com.xiyue.cloud.entities.Payment;
+      import lombok.extern.slf4j.Slf4j;
+      import org.springframework.web.bind.annotation.PathVariable;
+      import org.springframework.web.bind.annotation.RequestMapping;
+      import org.springframework.web.bind.annotation.RestController;
+      import org.springframework.web.client.RestTemplate;
+      
+      import javax.annotation.Resource;
+      
+      
+      @RestController
+      @Slf4j
+      public class CircleBreakerController {
+      
+          public static final String SERVICE_URL = "http://nacos-payment-provider";
+      
+          @Resource
+          private RestTemplate restTemplate;
+      
+      
+      
+          @RequestMapping("/consumer/fallback/{id}")
+          //@SentinelResource(value = "fallback") //没有配置
+          //@SentinelResource(value = "fallback",fallback = "handlerFallback") //fallback只负责业务异常
+          //@SentinelResource(value = "fallback",blockHandler = "blockHandler") //blockHandler只负责sentinel控制台配置违规
+          @SentinelResource(value = "fallback",fallback = "handlerFallback",blockHandler = "blockHandler",
+                  exceptionsToIgnore = {IllegalArgumentException.class})
+          public CommonResult<Payment> fallback(@PathVariable Long id) {
+              CommonResult<Payment> result = restTemplate.getForObject(SERVICE_URL + "/paymentSQL/"+id, CommonResult.class,id);
+      
+              if (id == 4) {
+                  throw new IllegalArgumentException ("IllegalArgumentException,非法参数异常....");
+              }else if (result.getData() == null) {
+                  throw new NullPointerException ("NullPointerException,该ID没有对应记录,空指针异常");
+              }
+      
+              return result;
+          }
+      
+          //fallback
+          public CommonResult handlerFallback(@PathVariable  Long id,Throwable e) {
+              Payment payment = new Payment(id,"null");
+              return new CommonResult<>(444,"兜底异常handlerFallback,exception内容  "+e.getMessage(),payment);
+          }
+      
+          //blockHandler
+          public CommonResult blockHandler(@PathVariable  Long id,BlockException blockException) {
+              Payment payment = new Payment(id,"null");
+              return new CommonResult<>(445,"blockHandler-sentinel限流,无此流水: blockException  "+blockException.getMessage(),payment);
+          }
+      }
+      ```
+
+      - 修改后请重启微服务
+
+        - 热部署对java代码级生效及时
+        - 对@SentinelResource注解内属性，有时效果不好
+
+      - 目的
+
+        - fallback管运行异常
+        - blockHandler管配置违规
+
+      - 测试地址http://localhost:84/consumer/fallback/1
+
+      - 没有任何配置
+
+        ```java
+        @RestController
+        @Slf4j
+        public class CircleBreakerController
+        {
+            public static final String SERVICE_URL = "http://nacos-payment-provider";
+        
+            @Resource
+            private RestTemplate restTemplate;
+        
+            @RequestMapping("/consumer/fallback/{id}")
+            @SentinelResource(value = "fallback")
+        
+            public CommonResult<Payment> fallback(@PathVariable Long id)
+            {
+                CommonResult<Payment> result = restTemplate.getForObject(SERVICE_URL + "/paymentSQL/"+id,CommonResult.class,id);
+        
+                if (id == 4) {
+                    throw new IllegalArgumentException ("IllegalArgumentException,非法参数异常....");
+                }else if (result.getData() == null) {
+                    throw new NullPointerException ("NullPointerException,该ID没有对应记录,空指针异常");
+                }
+        
+                return result;
+            }
+        ```
+
+        给客户error页面，不友好
+
+      - 只配置fallback
+
+        编码（那个业务类下面的CircleBreakerController的全部源码）
+
+      - 只配置blockHandler
+
+        编码（那个业务类下面的CircleBreakerController的全部源码）
+
+      - fallback和blockHandler都配置
+
+        结果：
+
+        ![image-20201023120433085](assets/image-20201023120433085.png)
+
+      - 忽略属性...
+
+        编码（那个业务类下面的CircleBreakerController的全部源码）
+          图说
+
+        ![image-20201023120745946](README.assets/image-20201023120745946-1603426072426.png)
+
+- Feign系列
+
+  - 修改84模块
+
+  - POM
+
+    ```xml
+     <dependency>
+    	 <groupId>org.springframework.cloud</groupId>
+     	 <artifactId>spring-cloud-starter-openfeign</artifactId>
+     </dependency>
+    ```
+
+  - YML(application.yml)
+
+    ```yml
+    server:
+      port: 84
+    
+    
+    spring:
+      application:
+        name: nacos-order-consumer
+      cloud:
+        nacos:
+          discovery:
+            server-addr: localhost:8848
+        sentinel:
+          transport:
+            dashboard: localhost:8080
+            port: 8719
+    
+    service-url:
+      nacos-user-service: http://nacos-payment-provider
+    
+    #对Feign的支持
+    feign:
+      sentinel:
+        enabled: true
+    ```
+
+  - 业务类
+
+    - 带@FeignClient注解的业务接口
+
+      ```java
+      package com.xiyue.cloud.service;
+      
+      import com.xiyue.cloud.entities.CommonResult;
+      import com.xiyue.cloud.entities.Payment;
+      import com.xiyue.cloud.service.impl.PaymentFallbackService;
+      import org.springframework.cloud.openfeign.FeignClient;
+      import org.springframework.web.bind.annotation.GetMapping;
+      import org.springframework.web.bind.annotation.PathVariable;
+      
+      
+      @FeignClient(value = "nacos-payment-provider",fallback = PaymentFallbackService.class)
+      public interface PaymentService
+      {
+          @GetMapping(value = "/paymentSQL/{id}")
+          public CommonResult<Payment> paymentSQL(@PathVariable("id") Long id);
+      }
+      ```
+
+    - fallback = PaymentFallbackService.class
+
+    - PaymentFallbackService实现类
+
+      ```java
+      package com.xiyue.cloud.service.impl;
+      
+      import com.xiyue.cloud.entities.CommonResult;
+      import com.xiyue.cloud.entities.Payment;
+      import com.xiyue.cloud.service.PaymentService;
+      import org.springframework.stereotype.Component;
+      
+      
+      @Component
+      public class PaymentFallbackService implements PaymentService
+      {
+          @Override
+          public CommonResult<Payment> paymentSQL(Long id)
+          {
+              return new CommonResult<>(44444,"服务降级返回,---PaymentFallbackService",new Payment(id,"errorSerial"));
+          }
+      }
+      ```
+
+    - Controller
+
+      ```java
+      // OpenFeign
+      @Resource
+      private PaymentService paymentService;
+      
+      @GetMapping(value = "/consumer/paymentSQL/{id}")
+      public CommonResult<Payment> paymentSQL(@PathVariable("id") Long id) {
+          return paymentService.paymentSQL(id);
+      }
+      ```
+
+  - 主启动(添加@EnableFeignClients启动Feign的功能)
+
+    ```java
+    package com.xiyue.cloud;
+    
+    import org.springframework.boot.SpringApplication;
+    import org.springframework.boot.autoconfigure.SpringBootApplication;
+    import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+    import org.springframework.cloud.openfeign.EnableFeignClients;
+    
+    
+    @EnableDiscoveryClient
+    @SpringBootApplication
+    @EnableFeignClients
+    public class OrderNacosMain84
+    {
+        public static void main(String[] args) {
+            SpringApplication.run(OrderNacosMain84.class, args);
+        }
+    }
+    ```
+
+  - http://localhost:84/consumer/openfeign/1
+
+  - http://localhost:84/consumer/paymentSQL/1
+
+  - 测试84调用9003，此时故意关闭9003微服务提供者，看84消费侧自动降级，不会被耗死
+
+- 熔断框架比较
+
+  ![image-20201023122657686](README.assets/image-20201023122657686-1603427224234.png)
+
+  ![image-20201023122744451](README.assets/image-20201023122744451-1603427270101.png)
+
 ## 19.10规则持久化
+
+- 是什么?一旦我们重启应用，Sentinel规则将消失，生产环境需要将配置规则进行持久化
+
+- 怎么玩?将限流配置规则持久化进Nacos保存，只要刷新8401某个rest地址，sentinel控制台的流控规则就能看到，只要Nacos里面的配置不删除，针对8401上Sentinel上的流控规则持续有效
+
+- 步骤
+
+  - 修改cloudalibaba-sentinel-service8401
+
+  - POM
+
+    ```java
+    <dependency>
+        <groupId>com.alibaba.csp</groupId>
+        <artifactId>sentinel-datasource-nacos</artifactId>
+    </dependency>
+    ```
+
+  - YML（application.yml）
+
+    ```yml
+    server:
+      port: 8401
+    
+    spring:
+      application:
+        name: cloudalibaba-sentinel-service
+      cloud:
+        nacos:
+          discovery:
+            server-addr: localhost:8848 #Nacos服务注册中心地址
+        sentinel:
+          transport:
+            dashboard: localhost:8080 #配置Sentinel dashboard地址
+            port: 8719
+          datasource:
+            ds1:
+              nacos:
+                server-addr: localhost:8848
+                dataId: cloudalibaba-sentinel-service
+                groupId: DEFAULT_GROUP
+                data-type: json
+                rule-type: flow
+    
+    management:
+      endpoints:
+        web:
+          exposure:
+            include: '*'
+    
+    feign:
+      sentinel:
+        enabled: true # 激活Sentinel对Feign的支持
+    ```
+
+    - 添加Nacos数据源配置
+
+    ```yml
+    spring:
+       cloud:
+        sentinel:
+        datasource:
+         ds1:
+          nacos:
+            server-addr:localhost:8848
+            dataid:${spring.application.name}
+            groupid:DEFAULT_GROUP
+            data-type:json
+                rule-type:flow
+    ```
+
+  - 添加Nacos业务规则配置
+
+    ![image-20201023123417056](assets/image-20201023123417056.png)
+
+    ![image-20201023123447833](assets/image-20201023123447833.png)
+
+    内容解析
+
+    ```json
+    [
+        {
+             "resource": "/retaLimit/byUrl",
+             "limitApp": "default",
+             "grade":   1,
+             "count":   1,
+             "strategy": 0,
+             "controlBehavior": 0,
+             "clusterMode": false    
+        }
+    ]
+    ```
+
+    ![image-20201023123738002](README.assets/image-20201023123738002-1603427862824.png)
+
+  - 启动8401后刷新sentinel发现业务规则有了
+
+    ![image-20201023123831464](README.assets/image-20201023123831464-1603427917050.png)
+
+  - 快速访问测试接口
+
+    - http://localhost:8401/rateLimit/byUrl
+
+    - 默认
+
+      ![image-20201023124206773](README.assets/image-20201023124206773-1603428132183.png)
+
+  - 停止8401再看sentinel
+
+    ![image-20201023124347576](README.assets/image-20201023124347576-1603428233313.png)
+
+  - 重新启动8401再看sentinel
+
+    - 扎一看还是没有，稍等一会儿
+    - 多次调用http://localhost:8401/rateLimit/byUrl
+    - 重新配置出现了，持久化验证通过
 
 # 20.SpringCloud Alibaba Seata处理分布式事务
 
