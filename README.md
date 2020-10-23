@@ -8279,7 +8279,282 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
 ## 19.7系统规则
 
+- 是什么:https://github.com/alibaba/Sentinel/wiki/%E7%B3%BB%E7%BB%9F%E8%87%AA%E9%80%82%E5%BA%94%E9%99%90%E6%B5%81
+
+  Sentinel 系统自适应限流从整体维度对应用入口流量进行控制，结合应用的 Load、CPU 使用率、总体平均 RT、入口 QPS 和并发线程数等几个维度的监控指标，通过自适应的流控策略，让系统的入口流量和系统的负载达到一个平衡，让系统尽可能跑在最大吞吐量的同时保证系统整体的稳定性。
+
+  ## 背景
+
+  在开始之前，我们先了解一下系统保护的目的：
+
+  - 保证系统不被拖垮
+  - 在系统稳定的前提下，保持系统的吞吐量
+
+  长期以来，系统保护的思路是根据硬指标，即系统的负载 (load1) 来做系统过载保护。当系统负载高于某个阈值，就禁止或者减少流量的进入；当 load 开始好转，则恢复流量的进入。这个思路给我们带来了不可避免的两个问题：
+
+  - load 是一个“结果”，如果根据 load 的情况来调节流量的通过率，那么就始终有延迟性。也就意味着通过率的任何调整，都会过一段时间才能看到效果。当前通过率是使 load 恶化的一个动作，那么也至少要过 1 秒之后才能观测到；同理，如果当前通过率调整是让 load 好转的一个动作，也需要 1 秒之后才能继续调整，这样就浪费了系统的处理能力。所以我们看到的曲线，总是会有抖动。
+  - 恢复慢。想象一下这样的一个场景（真实），出现了这样一个问题，下游应用不可靠，导致应用 RT 很高，从而 load 到了一个很高的点。过了一段时间之后下游应用恢复了，应用 RT 也相应减少。这个时候，其实应该大幅度增大流量的通过率；但是由于这个时候 load 仍然很高，通过率的恢复仍然不高。
+
+  [TCP BBR](https://en.wikipedia.org/wiki/TCP_congestion_control#TCP_BBR) 的思想给了我们一个很大的启发。我们应该根据系统能够处理的请求，和允许进来的请求，来做平衡，而不是根据一个间接的指标（系统 load）来做限流。最终我们追求的目标是 **在系统不被拖垮的情况下，提高系统的吞吐率，而不是 load 一定要到低于某个阈值**。如果我们还是按照固有的思维，超过特定的 load 就禁止流量进入，系统 load 恢复就放开流量，这样做的结果是无论我们怎么调参数，调比例，都是按照果来调节因，都无法取得良好的效果。
+
+  Sentinel 在系统自适应保护的做法是，用 load1 作为启动自适应保护的因子，而允许通过的流量由处理请求的能力，即请求的响应时间以及当前系统正在处理的请求速率来决定。
+
+  ## 系统规则
+
+  系统保护规则是从应用级别的入口流量进行控制，从单台机器的 load、CPU 使用率、平均 RT、入口 QPS 和并发线程数等几个维度监控应用指标，让系统尽可能跑在最大吞吐量的同时保证系统整体的稳定性。
+
+  系统保护规则是应用整体维度的，而不是资源维度的，并且**仅对入口流量生效**。入口流量指的是进入应用的流量（`EntryType.IN`），比如 Web 服务或 Dubbo 服务端接收的请求，都属于入口流量。
+
+  系统规则支持以下的模式：
+
+  - **Load 自适应**（仅对 Linux/Unix-like 机器生效）：系统的 load1 作为启发指标，进行自适应系统保护。当系统 load1 超过设定的启发值，且系统当前的并发线程数超过估算的系统容量时才会触发系统保护（BBR 阶段）。系统容量由系统的 `maxQps * minRt` 估算得出。设定参考值一般是 `CPU cores * 2.5`。
+  - **CPU usage**（1.5.0+ 版本）：当系统 CPU 使用率超过阈值即触发系统保护（取值范围 0.0-1.0），比较灵敏。
+  - **平均 RT**：当单台机器上所有入口流量的平均 RT 达到阈值即触发系统保护，单位是毫秒。
+  - **并发线程数**：当单台机器上所有入口流量的并发线程数达到阈值即触发系统保护。
+  - **入口 QPS**：当单台机器上所有入口流量的 QPS 达到阈值即触发系统保护。
+
+  ## 原理
+
+  先用经典图来镇楼:
+
+  ![TCP-BBR-pipe](README.assets/50813887-bff10300-1352-11e9-9201-437afea60a5a-1603421861219.png)
+
+  我们把系统处理请求的过程想象为一个水管，到来的请求是往这个水管灌水，当系统处理顺畅的时候，请求不需要排队，直接从水管中穿过，这个请求的RT是最短的；反之，当请求堆积的时候，那么处理请求的时间则会变为：排队时间 + 最短处理时间。
+
+  - 推论一: 如果我们能够保证水管里的水量，能够让水顺畅的流动，则不会增加排队的请求；也就是说，这个时候的系统负载不会进一步恶化。
+
+  我们用 T 来表示(水管内部的水量)，用RT来表示请求的处理时间，用P来表示进来的请求数，那么一个请求从进入水管道到从水管出来，这个水管会存在 `P * RT`　个请求。换一句话来说，当 `T ≈ QPS * Avg(RT)` 的时候，我们可以认为系统的处理能力和允许进入的请求个数达到了平衡，系统的负载不会进一步恶化。
+
+  接下来的问题是，水管的水位是可以达到了一个平衡点，但是这个平衡点只能保证水管的水位不再继续增高，但是还面临一个问题，就是在达到平衡点之前，这个水管里已经堆积了多少水。如果之前水管的水已经在一个量级了，那么这个时候系统允许通过的水量可能只能缓慢通过，RT会大，之前堆积在水管里的水会滞留；反之，如果之前的水管水位偏低，那么又会浪费了系统的处理能力。
+
+  - 推论二:　当保持入口的流量是水管出来的流量的最大的值的时候，可以最大利用水管的处理能力。
+
+  然而，和 TCP BBR 的不一样的地方在于，还需要用一个系统负载的值（load1）来激发这套机制启动。
+
+  > 注：这种系统自适应算法对于低 load 的请求，它的效果是一个“兜底”的角色。**对于不是应用本身造成的 load 高的情况（如其它进程导致的不稳定的情况），效果不明显。**
+
+  ## 示例
+
+  我们提供了系统自适应限流的示例：[SystemGuardDemo](https://github.com/alibaba/Sentinel/blob/master/sentinel-demo/sentinel-demo-basic/src/main/java/com/alibaba/csp/sentinel/demo/system/SystemGuardDemo.java)。
+
+- 各项配置参数说明
+
+  ![image-20201023105848601](README.assets/image-20201023105848601-1603421934041.png)
+
+- 配置全局QPS
+
 ## 19.8@SentinelResource
+
+- 按资源名称限流+后续处理
+
+  - 启动Nacos成功
+
+  - 启动Sentinel成功
+
+  - Module
+
+    - cloudalibaba-sentinel-service8401
+
+    - POM
+
+      ```xml
+       <dependency>
+       	<groupId>com.xiyue.cloud</groupId>
+       	<artifactId>cloud-api-commons</artifactId>
+       	<version>${project.version}</version>
+       </dependency>
+      ```
+
+    - YML（application.yml）
+
+      ```yml
+      server:
+        port: 8401
+      
+      spring:
+        application:
+          name: cloudalibaba-sentinel-service
+        cloud:
+          nacos:
+            discovery:
+              server-addr: localhost:8848
+          sentinel:
+            transport:
+              dashboard: localhost:8080
+              port: 8719  #默认8719，假如被占用了会自动从8719开始依次+1扫描。直至找到未被占用的端口
+      
+      management:
+        endpoints:
+          web:
+            exposure:
+              include: '*'
+      ```
+
+    - 业务类RateLimitController
+
+      ```java
+      package com.xiyue.cloud.controller;
+      
+      import com.alibaba.csp.sentinel.annotation.SentinelResource;
+      import com.alibaba.csp.sentinel.slots.block.BlockException;
+      
+      import com.xiyue.cloud.entities.*;
+      import org.springframework.web.bind.annotation.GetMapping;
+      import org.springframework.web.bind.annotation.RestController;
+      
+      
+      @RestController
+      public class RateLimitController {
+          @GetMapping("/byResource")
+          @SentinelResource(value = "byResource", blockHandler = "handleException")
+          public CommonResult byResource() {
+              return new CommonResult(200, "按资源名称限流测试OK", new Payment(2020L, "serial001"));
+          }
+      
+          public CommonResult handleException(BlockException exception) {
+              return new CommonResult(444, exception.getClass().getCanonicalName() + "\t 服务不可用");
+          }
+      }
+      ```
+
+    - 主启动
+
+      ```java
+      package com.xiyue.cloud;
+      
+      import org.springframework.boot.SpringApplication;
+      import org.springframework.boot.autoconfigure.SpringBootApplication;
+      import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+      
+      
+      @EnableDiscoveryClient
+      @SpringBootApplication
+      public class MainApp8401
+      {
+          public static void main(String[] args) {
+              SpringApplication.run(MainApp8401.class, args);
+          }
+      }
+      ```
+
+  - 配置流控规则
+
+    - 配置步骤
+
+      ![image-20201023110743995](README.assets/image-20201023110743995-1603422471410.png)
+
+    - 图形配置和代码关系
+
+    - 表示1秒钟内查询次数大于1，就跑到我们自定义的处流，限流
+
+  - 测试
+
+    - 1秒钟点击1下，OK
+
+    - 超过上述问题，疯狂点击，返回了自己定义的限流处理信息，限流发送
+
+      ![image-20201023110939955](README.assets/image-20201023110939955-1603422588021.png)
+
+  - 额外问题
+
+    - 此时关闭微服务8401看看
+    - Sentinel控制台，流控规则消失了？？？？=>  临时/持久？
+
+- 按照Url地址限流+后续处理
+
+  - 通过访问的URL来限流，会返回Sentinel自带默认的限流处理信息
+
+  - 业务类RateLimitController
+
+    ```java
+    @GetMapping("/rateLimit/byUrl")
+    @SentinelResource(value = "byUrl")
+    public CommonResult byUrl()
+    {
+        return new CommonResult(200,"按url限流测试OK",new Payment(2020L,"serial002"));
+    }
+    ```
+
+  - 访问一次
+
+  - Sentinel控制台配置
+
+    ![image-20201023111335972](README.assets/image-20201023111335972-1603422822468.png)
+
+  - 测试
+
+    - 疯狂点击http://localhost:8401/rateLimit/byUrl
+
+    - 结果
+
+      ![image-20201023111531246](README.assets/image-20201023111531246-1603422937549.png)
+
+- 上面兜底方法面临的问题
+
+  ![image-20201023111612325](README.assets/image-20201023111612325-1603422978427.png)
+
+- 客户自定义限流处理逻辑
+
+  - 创建customerBlockHandler类用于自定义限流处理逻辑
+
+  - 自定义限流处理类（CustomerBlockHandler）
+
+    ![image-20201023111852805](assets/image-20201023111852805.png)
+
+    ```java
+    package com.xiyue.cloud.myhandle;
+    
+    
+    import com.alibaba.csp.sentinel.slots.block.BlockException;
+    import com.xiyue.cloud.entities.CommonResult;
+    
+    public class CustomerBlockHandler {
+    
+        public static CommonResult handleException(BlockException exception) {
+            return new CommonResult(2020, "自定义限流处理信息....CustomerBlockHandler");
+    
+        }
+    }
+    ```
+
+  - RateLimitController
+
+    ```java
+    @GetMapping("/rateLimit/customerBlockHandler")
+    @SentinelResource(value = "customerBlockHandler",
+        blockHandlerClass = CustomerBlockHandler.class,
+        blockHandler = "handlerException2")
+    public CommonResult customerBlockHandler()
+    {
+        return new CommonResult(200,"按客戶自定义",new Payment(2020L,"serial003"));
+    }
+    ```
+
+  - 启动微服务后先调用一次http://localhost:8401/rateLimit/customerBlockHandler
+
+  - Sentinel控制台配置
+
+  - 测试后我们自定义的出来了
+
+  - 进一步说明
+
+    ![image-20201023112310713](assets/image-20201023112310713-1603423397151.png)
+
+- 更多注解属性说明
+
+  ![image-20201023112339921](README.assets/image-20201023112339921-1603423426015.png)
+
+  ![image-20201023112401733](README.assets/image-20201023112401733-1603423447622.png)
+
+  - 多说一句
+
+    ![image-20201023112508915](README.assets/image-20201023112508915-1603423514896.png)
+
+  - Sentinel主要有三个核心API
+
+    - SphU定义资源
+    - Tracer定义统计
+    - ContextUtil定义了上下文
 
 ## 19.9服务熔断功能
 
