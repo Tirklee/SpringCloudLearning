@@ -2,6 +2,10 @@
 
 郑重说明本资料来源于https://www.bilibili.com/video/BV18E411x7eT
 
+源码gitee地址：https://gitee.com/tirklee/SpringCloudLearning/tree/master
+
+源码github地址:https://github.com/Tirklee/SpringCloudLearning
+
 # 1.微服务架构零基础理论入门（小白必看）
 
 ## 1.1零基础小白，2020.1春节期间预习过第一季的，理解微服务概念的可以不看
