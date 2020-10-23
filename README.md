@@ -11482,7 +11482,7 @@ https://learn.hashicorp.com/consul/getting-started/install.html
 
 - 正常下单
 
-  - http://localhost:2001/order/create?userid=1&producrid=1&count=10&money=100
+  - http://localhost:2001/order/create?userId=1&productId=1&count=10&money=100
 
   - 数据库情况
 

@@ -41,6 +41,7 @@ public class OrderServiceImpl implements OrderService
 
         //扣减账户
         log.info("----->订单微服务开始调用账户，做扣减Money");
+        log.info("===========Order=================="+order.toString());
         accountService.decrease(order.getUserId(),order.getMoney());
         log.info("----->订单微服务开始调用账户，做扣减end");
 
